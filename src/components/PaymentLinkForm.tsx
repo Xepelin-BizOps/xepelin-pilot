@@ -34,6 +34,10 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
 
   const advanceAmount = (totalAmount * advancePercentage[0]) / 100;
 
+  const handlePartialPaymentChange = (checked: boolean | "indeterminate") => {
+    setPartialPayment(checked === true);
+  };
+
   const handleGenerateLink = () => {
     console.log('Generando enlace de pago...', {
       orderRef,
@@ -82,7 +86,7 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
             <Checkbox 
               id="partial"
               checked={partialPayment}
-              onCheckedChange={setPartialPayment}
+              onCheckedChange={handlePartialPaymentChange}
               className="border-gray-300"
             />
             <Label htmlFor="partial" className="text-blue-600 font-medium">
