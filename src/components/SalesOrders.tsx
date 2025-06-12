@@ -25,7 +25,8 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
       paymentLink: 'https://pay.xepelin.com/ord-001',
       hasCFDI: true,
       paid: 25600,
-      pending: 20000
+      pending: 20000,
+      isInvoiced: true
     },
     {
       id: 'ORD-2024-002',
@@ -35,9 +36,10 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
       amount: 32000,
       status: 'Pendiente Pago',
       paymentLink: 'https://pay.xepelin.com/ord-002',
-      hasCFDI: true,
+      hasCFDI: false,
       paid: 0,
-      pending: 32000
+      pending: 32000,
+      isInvoiced: false
     },
     {
       id: 'ORD-2024-003',
@@ -49,7 +51,8 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
       paymentLink: null,
       hasCFDI: true,
       paid: 18900,
-      pending: 0
+      pending: 0,
+      isInvoiced: true
     }
   ];
 
@@ -163,12 +166,14 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex space-x-2">
-                      {order.hasCFDI && (
-                        <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
-                          <FileText className="w-3 h-3 mr-1" />
-                          CFDI
-                        </Button>
-                      )}
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        {order.isInvoiced ? 'Editar Factura' : 'Facturar'}
+                      </Button>
                       
                       {order.paymentLink && (
                         <Button size="sm" variant="outline" className="border-green-300 text-green-600 hover:bg-green-50">
@@ -209,33 +214,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
           </table>
         </div>
       </Card>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">Total en Órdenes</p>
-            <p className="text-2xl font-bold text-gray-900">${orders.reduce((sum, order) => sum + order.amount, 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-500">{orders.length} órdenes activas</p>
-          </div>
-        </Card>
-        
-        <Card className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">Total Cobrado</p>
-            <p className="text-2xl font-bold text-green-600">${orders.reduce((sum, order) => sum + order.paid, 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-500">Pagos recibidos</p>
-          </div>
-        </Card>
-        
-        <Card className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">Por Cobrar</p>
-            <p className="text-2xl font-bold text-orange-600">${orders.reduce((sum, order) => sum + order.pending, 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-500">Pendiente de pago</p>
-          </div>
-        </Card>
-      </div>
     </div>
   );
 };

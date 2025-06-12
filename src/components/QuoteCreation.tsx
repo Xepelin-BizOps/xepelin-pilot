@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
-import { Plus } from 'lucide-react';
+import { Plus, FileText } from 'lucide-react';
 
 interface QuoteCreationProps {
   onClientClick: (client: any) => void;
@@ -21,7 +21,8 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       date: '2024-06-10',
       amount: 32000,
       status: 'Pendiente',
-      products: 3
+      products: 3,
+      isInvoiced: false
     },
     {
       id: 'COT-2024-002', 
@@ -29,7 +30,8 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       date: '2024-06-11',
       amount: 45600,
       status: 'Convertida',
-      products: 5
+      products: 5,
+      isInvoiced: true
     },
     {
       id: 'COT-2024-003',
@@ -37,7 +39,8 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       date: '2024-06-12', 
       amount: 18900,
       status: 'En Revisión',
-      products: 2
+      products: 2,
+      isInvoiced: false
     }
   ];
 
@@ -128,6 +131,14 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                     <div className="flex space-x-2">
                       <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
                         Ver
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        {quote.isInvoiced ? 'Editar Factura' : 'Facturar'}
                       </Button>
                       {quote.status === 'Pendiente' && (
                         <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
