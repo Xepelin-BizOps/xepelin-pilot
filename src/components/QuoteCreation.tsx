@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
-import { Plus, FileText } from 'lucide-react';
+import { Plus, FileText, Link, Bell } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface QuoteCreationProps {
   onClientClick: (client: any) => void;
@@ -60,99 +61,131 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   }
 
   return (
-    <div className="space-y-6">
-      {/* Quote Creation Button */}
-      <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Crear Nueva Cotización</h3>
-          <p className="text-gray-600 mb-4">Gestiona clientes, productos y envía cotizaciones por email y WhatsApp</p>
-          <Button 
-            onClick={() => onToggleCreation(true)}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nueva Cotización
-          </Button>
-        </div>
-      </Card>
-
-      {/* Quotes List */}
-      <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Cotizaciones Recientes</h3>
-          <div className="flex space-x-2">
-            <Input 
-              placeholder="Buscar cotizaciones..." 
-              className="w-64 bg-white border-gray-300 rounded-lg"
-            />
-            <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
-              Filtros
-            </Button>
+    <TooltipProvider>
+      <div className="space-y-6">
+        {/* Quotes List */}
+        <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Cotizaciones Recientes</h3>
+            <div className="flex space-x-2">
+              <Input 
+                placeholder="Buscar cotizaciones..." 
+                className="w-64 bg-white border-gray-300 rounded-lg"
+              />
+              <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
+                Filtros
+              </Button>
+              <Button 
+                onClick={() => onToggleCreation(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nueva Cotización
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <div className="overflow-hidden border border-gray-200 rounded-lg">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">ID</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Cliente</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Fecha</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Productos</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Monto</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Estado</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-700">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              {quotes.map((quote) => (
-                <tr key={quote.id} className="border-t border-gray-200 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium text-blue-600">{quote.id}</td>
-                  <td className="py-3 px-4">
-                    <button
-                      onClick={() => handleClientClick(quote.client)}
-                      className="text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      {quote.client}
-                    </button>
-                  </td>
-                  <td className="py-3 px-4 text-gray-600">{quote.date}</td>
-                  <td className="py-3 px-4 text-gray-600">{quote.products} items</td>
-                  <td className="py-3 px-4 font-semibold text-gray-900">${quote.amount.toLocaleString()}</td>
-                  <td className="py-3 px-4">
-                    <Badge 
-                      variant={quote.status === 'Convertida' ? 'default' : 'secondary'}
-                      className={quote.status === 'Convertida' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}
-                    >
-                      {quote.status}
-                    </Badge>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex space-x-2">
-                      <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
-                        Ver
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="border-blue-300 text-blue-600 hover:bg-blue-50"
-                      >
-                        <FileText className="w-3 h-3 mr-1" />
-                        {quote.isInvoiced ? 'Editar Factura' : 'Facturar'}
-                      </Button>
-                      {quote.status === 'Pendiente' && (
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                          Confirmar
-                        </Button>
-                      )}
-                    </div>
-                  </td>
+          <div className="overflow-hidden border border-gray-200 rounded-lg">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">ID</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Cliente</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Fecha</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Productos</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Monto</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Estado</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </div>
+              </thead>
+              <tbody className="bg-white">
+                {quotes.map((quote) => (
+                  <tr key={quote.id} className="border-t border-gray-200 hover:bg-gray-50">
+                    <td className="py-3 px-4 font-medium text-blue-600">{quote.id}</td>
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => handleClientClick(quote.client)}
+                        className="text-gray-900 hover:text-blue-600 transition-colors"
+                      >
+                        {quote.client}
+                      </button>
+                    </td>
+                    <td className="py-3 px-4 text-gray-600">{quote.date}</td>
+                    <td className="py-3 px-4 text-gray-600">{quote.products} items</td>
+                    <td className="py-3 px-4 font-semibold text-gray-900">${quote.amount.toLocaleString()}</td>
+                    <td className="py-3 px-4">
+                      <Badge 
+                        variant={quote.status === 'Convertida' ? 'default' : 'secondary'}
+                        className={quote.status === 'Convertida' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}
+                      >
+                        {quote.status}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex space-x-2">
+                        <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+                          Ver
+                        </Button>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                            >
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{quote.isInvoiced ? 'Editar Factura' : 'Facturar'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                            >
+                              <Link className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Link de Pago</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                            >
+                              <Bell className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Recordatorio</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        
+                        {quote.status === 'Pendiente' && (
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                            Confirmar
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+    </TooltipProvider>
   );
 };
