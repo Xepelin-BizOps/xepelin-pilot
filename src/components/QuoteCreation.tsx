@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
+import { InvoiceForm } from '@/components/InvoiceForm';
 import { Plus, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -16,6 +18,7 @@ interface QuoteCreationProps {
 
 export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, showCreationForm, onToggleCreation }) => {
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
 
   const quotes = [
@@ -62,6 +65,11 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   const handlePaymentLinkClick = (quote: any) => {
     setSelectedQuote(quote);
     setShowPaymentLinkForm(true);
+  };
+
+  const handleInvoiceClick = (quote: any) => {
+    setSelectedQuote(quote);
+    setShowInvoiceForm(true);
   };
 
   if (showCreationForm) {
@@ -141,6 +149,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                               size="sm" 
                               variant="outline" 
                               className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              onClick={() => handleInvoiceClick(quote)}
                             >
                               <FileText className="w-4 h-4" />
                             </Button>
@@ -203,6 +212,18 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             orderRef={selectedQuote.id}
             totalAmount={selectedQuote.amount}
             clientName={selectedQuote.client}
+          />
+        )}
+
+        {/* Invoice Form */}
+        {showInvoiceForm && selectedQuote && (
+          <InvoiceForm
+            isOpen={showInvoiceForm}
+            onClose={() => setShowInvoiceForm(false)}
+            orderRef={selectedQuote.id}
+            totalAmount={selectedQuote.amount}
+            clientName={selectedQuote.client}
+            orderDate={selectedQuote.date}
           />
         )}
       </div>

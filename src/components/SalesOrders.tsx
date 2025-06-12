@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
+import { InvoiceForm } from '@/components/InvoiceForm';
 import { Plus, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -15,6 +16,7 @@ interface SalesOrdersProps {
 export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   const orders = [
@@ -81,6 +83,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   const handlePaymentLinkClick = (order: any) => {
     setSelectedOrder(order);
     setShowPaymentLinkForm(true);
+  };
+
+  const handleInvoiceClick = (order: any) => {
+    setSelectedOrder(order);
+    setShowInvoiceForm(true);
   };
 
   return (
@@ -181,6 +188,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                               size="sm" 
                               variant="outline" 
                               className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              onClick={() => handleInvoiceClick(order)}
                             >
                               <FileText className="w-4 h-4" />
                             </Button>
@@ -257,6 +265,18 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
             orderRef={selectedOrder.id}
             totalAmount={selectedOrder.amount}
             clientName={selectedOrder.client}
+          />
+        )}
+
+        {/* Invoice Form */}
+        {showInvoiceForm && selectedOrder && (
+          <InvoiceForm
+            isOpen={showInvoiceForm}
+            onClose={() => setShowInvoiceForm(false)}
+            orderRef={selectedOrder.id}
+            totalAmount={selectedOrder.amount}
+            clientName={selectedOrder.client}
+            orderDate={selectedOrder.date}
           />
         )}
       </div>
