@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
+import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { Plus, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -15,6 +15,9 @@ interface QuoteCreationProps {
 }
 
 export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, showCreationForm, onToggleCreation }) => {
+  const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState<any>(null);
+
   const quotes = [
     {
       id: 'COT-2024-001',
@@ -54,6 +57,11 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       totalPending: 32000,
       lastActivity: '2024-06-12'
     });
+  };
+
+  const handlePaymentLinkClick = (quote: any) => {
+    setSelectedQuote(quote);
+    setShowPaymentLinkForm(true);
   };
 
   if (showCreationForm) {
@@ -148,6 +156,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                               size="sm" 
                               variant="outline" 
                               className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              onClick={() => handlePaymentLinkClick(quote)}
                             >
                               <Link className="w-4 h-4" />
                             </Button>
@@ -185,6 +194,16 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             </table>
           </div>
         </Card>
+
+        {/* Payment Link Form */}
+        {showPaymentLinkForm && selectedQuote && (
+          <PaymentLinkForm
+            isOpen={showPaymentLinkForm}
+            onClose={() => setShowPaymentLinkForm(false)}
+            orderRef={selectedQuote.id}
+            totalAmount={selectedQuote.amount}
+          />
+        )}
       </div>
     </TooltipProvider>
   );

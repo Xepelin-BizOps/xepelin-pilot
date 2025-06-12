@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { Plus, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -14,6 +14,8 @@ interface SalesOrdersProps {
 
 export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   const orders = [
     {
@@ -74,6 +76,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
         ? prev.filter(id => id !== orderId)
         : [...prev, orderId]
     );
+  };
+
+  const handlePaymentLinkClick = (order: any) => {
+    setSelectedOrder(order);
+    setShowPaymentLinkForm(true);
   };
 
   return (
@@ -183,22 +190,21 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                           </TooltipContent>
                         </Tooltip>
                         
-                        {order.paymentLink && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="border-green-300 text-green-600 hover:bg-green-50"
-                              >
-                                <Link className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Link de Pago</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-green-300 text-green-600 hover:bg-green-50"
+                              onClick={() => handlePaymentLinkClick(order)}
+                            >
+                              <Link className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Link de Pago</p>
+                          </TooltipContent>
+                        </Tooltip>
                         
                         {order.pending > 0 && (
                           <Tooltip>
@@ -242,6 +248,16 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
             </table>
           </div>
         </Card>
+
+        {/* Payment Link Form */}
+        {showPaymentLinkForm && selectedOrder && (
+          <PaymentLinkForm
+            isOpen={showPaymentLinkForm}
+            onClose={() => setShowPaymentLinkForm(false)}
+            orderRef={selectedOrder.id}
+            totalAmount={selectedOrder.amount}
+          />
+        )}
       </div>
     </TooltipProvider>
   );
