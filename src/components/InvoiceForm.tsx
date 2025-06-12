@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Download, X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface InvoiceFormProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   const [formaPago, setFormaPago] = useState('');
   const [regimenFiscal, setRegimenFiscal] = useState('');
   const [invoiceGenerated, setInvoiceGenerated] = useState(false);
+  const { toast } = useToast();
 
   const handleGenerateInvoice = () => {
     console.log('Generando factura...', {
@@ -47,17 +49,28 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
     });
     
     setInvoiceGenerated(true);
+    toast({
+      title: "Factura generada",
+      description: "La factura se ha generado exitosamente",
+    });
   };
 
   const handleDownloadInvoice = () => {
     console.log('Descargando factura...');
-    // Aquí implementarías la lógica para descargar la factura
+    toast({
+      title: "Descargando factura",
+      description: "El archivo PDF se está descargando",
+    });
   };
 
   const handleCancelInvoice = () => {
     console.log('Cancelando factura...');
     setInvoiceGenerated(false);
-    // Aquí implementarías la lógica para cancelar la factura
+    toast({
+      title: "Factura cancelada",
+      description: "La factura ha sido cancelada",
+      variant: "destructive",
+    });
   };
 
   const handleClose = () => {
