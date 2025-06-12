@@ -256,6 +256,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
             onClose={() => setShowPaymentLinkForm(false)}
             orderRef={selectedOrder.id}
             totalAmount={selectedOrder.amount}
+            clientName={selectedOrder.client}
           />
         )}
       </div>

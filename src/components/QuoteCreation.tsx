@@ -202,6 +202,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             onClose={() => setShowPaymentLinkForm(false)}
             orderRef={selectedQuote.id}
             totalAmount={selectedQuote.amount}
+            clientName={selectedQuote.client}
           />
         )}
       </div>
