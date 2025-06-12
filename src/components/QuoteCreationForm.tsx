@@ -1,0 +1,329 @@
+
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Search, Plus, FileText, UserPlus, Package, Mail, MessageSquare } from 'lucide-react';
+
+interface QuoteCreationFormProps {
+  onClose: () => void;
+}
+
+export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose }) => {
+  const [products, setProducts] = useState([
+    { id: 1, sku: 'PROD-001', name: 'Laptop Dell Inspiron 15', price: 15000, quantity: 2, unit: 'pcs' }
+  ]);
+  const [showProductSearch, setShowProductSearch] = useState(false);
+  const [showClientDialog, setShowClientDialog] = useState(false);
+  const [showManualProduct, setShowManualProduct] = useState(false);
+
+  const subtotal = products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
+  const iva = subtotal * 0.16;
+  const total = subtotal + iva;
+
+  const availableProducts = [
+    { sku: 'PROD-002', name: 'Monitor Samsung 24"', price: 4500, unit: 'pcs' },
+    { sku: 'PROD-003', name: 'Teclado Mecánico RGB', price: 1200, unit: 'pcs' },
+    { sku: 'PROD-004', name: 'Mouse Inalámbrico', price: 800, unit: 'pcs' }
+  ];
+
+  const addProduct = (product: any) => {
+    setProducts([...products, { 
+      id: Date.now(), 
+      ...product, 
+      quantity: 1 
+    }]);
+    setShowProductSearch(false);
+  };
+
+  const addManualProduct = (productData: any) => {
+    setProducts([...products, { 
+      id: Date.now(), 
+      ...productData,
+      quantity: 1 
+    }]);
+    setShowManualProduct(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Quote Creation Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Form */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Nueva Cotización</h3>
+              <Button variant="outline" onClick={onClose} className="border-gray-300 text-gray-600 hover:bg-gray-50">
+                Cerrar
+              </Button>
+            </div>
+            
+            {/* Client Selection */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <Label htmlFor="client">Cliente</Label>
+                <div className="flex space-x-2">
+                  <Select>
+                    <SelectTrigger className="bg-white border-gray-300 rounded-lg">
+                      <SelectValue placeholder="Seleccionar cliente" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                      <SelectItem value="client1">Tecnología Avanzada S.A.</SelectItem>
+                      <SelectItem value="client2">Innovación Digital S.C.</SelectItem>
+                      <SelectItem value="client3">Sistemas Corporativos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Dialog open={showClientDialog} onOpenChange={setShowClientDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+                        <UserPlus className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white">
+                      <DialogHeader>
+                        <DialogTitle>Agregar Nuevo Cliente</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="clientName">Nombre / Razón Social</Label>
+                          <Input placeholder="Empresa ABC S.A." className="bg-white border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                          <Label htmlFor="clientEmail">Email</Label>
+                          <Input type="email" placeholder="contacto@empresa.com" className="bg-white border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                          <Label htmlFor="clientPhone">WhatsApp</Label>
+                          <Input placeholder="+52 55 1234 5678" className="bg-white border-gray-300 rounded-lg" />
+                        </div>
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setShowClientDialog(false)}>
+                          Agregar Cliente
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="date">Fecha</Label>
+                <Input 
+                  type="date" 
+                  className="bg-white border-gray-300 rounded-lg"
+                  defaultValue="2024-06-12"
+                />
+              </div>
+            </div>
+
+            {/* Products Section */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Label>Productos</Label>
+                <div className="space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowProductSearch(true)}
+                    className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                  >
+                    <Search className="w-4 h-4 mr-2" />
+                    Buscar Catálogo
+                  </Button>
+                  
+                  <Dialog open={showManualProduct} onOpenChange={setShowManualProduct}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Agregar Manual
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white">
+                      <DialogHeader>
+                        <DialogTitle>Agregar Producto Manual</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="productName">Nombre del Producto</Label>
+                          <Input placeholder="Ej: Laptop HP Pavilion" className="bg-white border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                          <Label htmlFor="productSku">SKU</Label>
+                          <Input placeholder="PROD-005" className="bg-white border-gray-300 rounded-lg" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="productPrice">Precio Unitario</Label>
+                            <Input type="number" placeholder="5000" className="bg-white border-gray-300 rounded-lg" />
+                          </div>
+                          <div>
+                            <Label htmlFor="productUnit">Unidad</Label>
+                            <Select>
+                              <SelectTrigger className="bg-white border-gray-300 rounded-lg">
+                                <SelectValue placeholder="Seleccionar" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                                <SelectItem value="pcs">Piezas</SelectItem>
+                                <SelectItem value="kg">Kilogramos</SelectItem>
+                                <SelectItem value="mt">Metros</SelectItem>
+                                <SelectItem value="hrs">Horas</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <Button 
+                          className="w-full bg-blue-600 hover:bg-blue-700" 
+                          onClick={() => {
+                            addManualProduct({
+                              sku: 'PROD-005',
+                              name: 'Producto Manual',
+                              price: 5000,
+                              unit: 'pcs'
+                            });
+                          }}
+                        >
+                          Agregar Producto
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Importar Excel
+                  </Button>
+                </div>
+              </div>
+
+              {/* Product Search Dropdown */}
+              {showProductSearch && (
+                <Card className="p-4 border border-gray-200 rounded-lg">
+                  <div className="space-y-2">
+                    <Input 
+                      placeholder="Buscar por nombre o SKU..." 
+                      className="bg-white border-gray-300 rounded-lg"
+                    />
+                    <div className="max-h-40 overflow-y-auto space-y-1">
+                      {availableProducts.map((product) => (
+                        <div 
+                          key={product.sku}
+                          className="p-2 hover:bg-gray-50 rounded cursor-pointer flex justify-between items-center"
+                          onClick={() => addProduct(product)}
+                        >
+                          <div>
+                            <p className="font-medium text-gray-900">{product.name}</p>
+                            <p className="text-sm text-gray-500">{product.sku}</p>
+                          </div>
+                          <p className="font-semibold text-gray-900">${product.price.toLocaleString()}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Products Table */}
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Producto</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Cantidad</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Precio Unit.</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white">
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-t border-gray-200">
+                        <td className="py-3 px-4">
+                          <div>
+                            <p className="font-medium text-gray-900">{product.name}</p>
+                            <p className="text-sm text-gray-500">{product.sku}</p>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Input 
+                            type="number" 
+                            value={product.quantity}
+                            className="w-20 bg-white border-gray-300 rounded"
+                          />
+                        </td>
+                        <td className="py-3 px-4 text-gray-900">${product.price.toLocaleString()}</td>
+                        <td className="py-3 px-4 font-semibold text-gray-900">
+                          ${(product.price * product.quantity).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Column - Summary */}
+        <div className="space-y-6">
+          <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h4 className="font-semibold text-gray-900 mb-4">Resumen Financiero</h4>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Subtotal:</span>
+                <span className="font-medium text-gray-900">${subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">IVA (16%):</span>
+                <span className="font-medium text-gray-900">${iva.toLocaleString()}</span>
+              </div>
+              <div className="border-t border-gray-200 pt-3">
+                <div className="flex justify-between">
+                  <span className="font-semibold text-gray-900">Total:</span>
+                  <span className="font-bold text-lg text-gray-900">${total.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 space-y-3">
+              <Label htmlFor="notes">Notas</Label>
+              <Textarea 
+                placeholder="Condiciones comerciales, términos de pago..."
+                className="bg-white border-gray-300 rounded-lg"
+              />
+            </div>
+
+            <div className="mt-6 space-y-2">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                Crear Cotización
+              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Email
+                </Button>
+                <Button variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  WhatsApp
+                </Button>
+              </div>
+              <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
+                Guardar Borrador
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};

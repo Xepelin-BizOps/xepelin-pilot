@@ -12,6 +12,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('quotes');
   const [selectedClient, setSelectedClient] = useState(null);
   const [showReminderPanel, setShowReminderPanel] = useState(false);
+  const [showQuoteCreation, setShowQuoteCreation] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -20,7 +21,11 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-semibold text-gray-900">Xepelin</h1>
+              <img 
+                src="/lovable-uploads/4f34062d-fcee-4ca7-a1c7-cd6f2ac52cb4.png" 
+                alt="Xepelin" 
+                className="h-8"
+              />
               <span className="ml-3 text-sm text-gray-500">Gestión Comercial</span>
             </div>
             <Button 
@@ -59,7 +64,11 @@ const Index = () => {
           </TabsList>
           
           <TabsContent value="quotes" className="mt-6">
-            <QuoteCreation onClientClick={setSelectedClient} />
+            <QuoteCreation 
+              onClientClick={setSelectedClient}
+              showCreationForm={showQuoteCreation}
+              onToggleCreation={setShowQuoteCreation}
+            />
           </TabsContent>
           
           <TabsContent value="orders" className="mt-6">
