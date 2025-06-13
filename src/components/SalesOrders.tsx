@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
-import { MoreHorizontal, FileText, Link, Bell, ShoppingCart } from 'lucide-react';
+import { MoreHorizontal, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SalesOrdersProps {
@@ -103,10 +102,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                 placeholder="Buscar órdenes..." 
                 className="w-64 bg-white border-gray-400 rounded-lg focus:border-blue-500"
               />
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Órdenes de Venta
-              </Button>
             </div>
           </div>
 
