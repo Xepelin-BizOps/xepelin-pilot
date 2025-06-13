@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,9 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
-import { PaymentRegistrationForm } from '@/components/PaymentRegistrationForm';
-import { InvoiceMenuDialog } from '@/components/InvoiceMenuDialog';
-import { Plus, FileText, MoreHorizontal, Bell } from 'lucide-react';
+import { FileText, Link, Bell, MoreVertical, Download, Eye, X } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SalesOrdersProps {
@@ -20,8 +17,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [showInvoiceMenu, setShowInvoiceMenu] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   const orders = [
@@ -92,12 +87,22 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
 
   const handleInvoiceClick = (order: any) => {
     setSelectedOrder(order);
-    setShowInvoiceMenu(true);
+    setShowInvoiceForm(true);
   };
 
-  const handlePaymentRegistration = (order: any) => {
-    setSelectedOrder(order);
-    setShowPaymentForm(true);
+  const handleDownloadInvoice = (order: any) => {
+    console.log('Descargando factura para:', order.id);
+    // Aquí iría la lógica para descargar la factura
+  };
+
+  const handleViewInvoice = (order: any) => {
+    console.log('Viendo factura para:', order.id);
+    // Aquí iría la lógica para ver la factura
+  };
+
+  const handleCancelInvoice = (order: any) => {
+    console.log('Cancelando factura para:', order.id);
+    // Aquí iría la lógica para cancelar la factura
   };
 
   return (
@@ -192,6 +197,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
+                        {/* Botón de factura - siempre visible */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
@@ -204,11 +210,12 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Opciones de Factura</p>
+                            <p>{order.isInvoiced ? 'Editar Factura' : 'Facturar'}</p>
                           </TooltipContent>
                         </Tooltip>
                         
-                        {order.status !== 'Pagado' && (
+                        {/* Botón de link de pago - solo si no está completamente pagado */}
+                        {order.pending > 0 && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button 
@@ -217,7 +224,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                                 className="border-gray-400 text-gray-600 hover:bg-gray-50"
                                 onClick={() => handlePaymentLinkClick(order)}
                               >
-                                <link className="w-4 h-4" />
+                                <Link className="w-4 h-4" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -226,21 +233,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                           </Tooltip>
                         )}
                         
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                              onClick={() => handlePaymentRegistration(order)}
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Registrar Pago</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        
+                        {/* Botón de recordatorio - solo si hay monto pendiente */}
                         {order.pending > 0 && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -257,13 +250,67 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                           </Tooltip>
                         )}
                         
+                        {/* Botones específicos para facturas pagadas */}
+                        {order.isInvoiced && order.status === 'Pagado' && (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="border-gray-400 text-gray-600 hover:bg-gray-50"
+                                  onClick={() => handleDownloadInvoice(order)}
+                                >
+                                  <Download className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Descargar Factura</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="border-gray-400 text-gray-600 hover:bg-gray-50"
+                                  onClick={() => handleViewInvoice(order)}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Ver Factura</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="border-red-400 text-red-600 hover:bg-red-50"
+                                  onClick={() => handleCancelInvoice(order)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Cancelar Factura</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
+                        
+                        {/* Menú de tres puntos */}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button size="sm" variant="outline" className="border-gray-400 text-gray-600 hover:bg-gray-50">
-                              <MoreHorizontal className="w-4 h-4" />
+                              <MoreVertical className="w-3 h-3" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+                          <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg">
                             <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Ver Detalles</DropdownMenuItem>
                             <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Editar Contacto</DropdownMenuItem>
                             <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Descargar PDF</DropdownMenuItem>
@@ -304,37 +351,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
             totalAmount={selectedOrder.amount}
             clientName={selectedOrder.client}
             orderDate={selectedOrder.date}
-          />
-        )}
-
-        {/* Payment Registration Form */}
-        {showPaymentForm && selectedOrder && (
-          <PaymentRegistrationForm
-            isOpen={showPaymentForm}
-            onClose={() => setShowPaymentForm(false)}
-            orderRef={selectedOrder.id}
-            totalAmount={selectedOrder.amount}
-            clientName={selectedOrder.client}
-            onPaymentRegistered={() => {
-              console.log('Pago registrado para', selectedOrder.id);
-              setShowPaymentForm(false);
-            }}
-          />
-        )}
-
-        {/* Invoice Menu Dialog */}
-        {showInvoiceMenu && selectedOrder && (
-          <InvoiceMenuDialog
-            isOpen={showInvoiceMenu}
-            onClose={() => setShowInvoiceMenu(false)}
-            order={selectedOrder}
-            onInvoiceAction={(action) => {
-              console.log('Acción de factura:', action, 'para orden:', selectedOrder.id);
-              if (action === 'emit') {
-                setShowInvoiceMenu(false);
-                setShowInvoiceForm(true);
-              }
-            }}
           />
         )}
       </div>

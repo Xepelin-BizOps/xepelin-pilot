@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,9 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
-import { PaymentRegistrationForm } from '@/components/PaymentRegistrationForm';
-import { QuoteConfirmationDialog } from '@/components/QuoteConfirmationDialog';
-import { Plus, FileText, MoreHorizontal, Bell } from 'lucide-react';
+import { Plus, FileText, Link, Bell, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,8 +22,6 @@ interface QuoteCreationProps {
 export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, showCreationForm, onToggleCreation }) => {
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [editingQuote, setEditingQuote] = useState<any>(null);
@@ -101,36 +98,19 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   };
 
   const handleConfirmQuote = (quote: any) => {
-    setSelectedQuote(quote);
-    setShowConfirmationDialog(true);
-  };
-
-  const handleQuoteConfirmed = (shouldRegisterPayment: boolean) => {
-    if (!selectedQuote) return;
-    
     setQuotes(prevQuotes => 
       prevQuotes.map(q => 
-        q.id === selectedQuote.id 
+        q.id === quote.id 
           ? { ...q, status: 'Confirmada' }
           : q
       )
     );
     
-    setShowConfirmationDialog(false);
-    
-    if (shouldRegisterPayment) {
-      setShowPaymentForm(true);
-    }
-    
+    console.log('Confirmando cotización:', quote.id);
     toast({
       title: "Cotización confirmada",
-      description: `La cotización ${selectedQuote.id} ha sido confirmada exitosamente`,
+      description: `La cotización ${quote.id} ha sido confirmada exitosamente`,
     });
-  };
-
-  const handlePaymentRegistration = (quote: any) => {
-    setSelectedQuote(quote);
-    setShowPaymentForm(true);
   };
 
   const handleDeleteQuote = (quote: any) => {
@@ -278,40 +258,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                           Ver
                         </Button>
                         
-                        {quote.status === 'Pendiente' && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                onClick={() => handleConfirmQuote(quote)}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Confirmar Cotización</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-
-                        {quote.status === 'Confirmada' && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => handlePaymentRegistration(quote)}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Registrar Pago</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                        
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
@@ -336,7 +282,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                               className="border-blue-300 text-blue-600 hover:bg-blue-50"
                               onClick={() => handlePaymentLinkClick(quote)}
                             >
-                              <link className="w-4 h-4" />
+                              <Link className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -365,7 +311,15 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                          <DropdownMenuContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                            {quote.status === 'Pendiente' && (
+                              <DropdownMenuItem 
+                                className="hover:bg-gray-50"
+                                onClick={() => handleConfirmQuote(quote)}
+                              >
+                                Confirmar
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem 
                               className="hover:bg-gray-50"
                               onClick={() => handleEditQuote(quote)}
@@ -483,31 +437,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             totalAmount={selectedQuote.amount}
             clientName={selectedQuote.client}
             orderDate={selectedQuote.date}
-          />
-        )}
-
-        {/* Quote Confirmation Dialog */}
-        {showConfirmationDialog && selectedQuote && (
-          <QuoteConfirmationDialog
-            isOpen={showConfirmationDialog}
-            onClose={() => setShowConfirmationDialog(false)}
-            quote={selectedQuote}
-            onConfirm={handleQuoteConfirmed}
-          />
-        )}
-
-        {/* Payment Registration Form */}
-        {showPaymentForm && selectedQuote && (
-          <PaymentRegistrationForm
-            isOpen={showPaymentForm}
-            onClose={() => setShowPaymentForm(false)}
-            orderRef={selectedQuote.id}
-            totalAmount={selectedQuote.amount}
-            clientName={selectedQuote.client}
-            onPaymentRegistered={() => {
-              console.log('Pago registrado para cotización', selectedQuote.id);
-              setShowPaymentForm(false);
-            }}
           />
         )}
       </div>
