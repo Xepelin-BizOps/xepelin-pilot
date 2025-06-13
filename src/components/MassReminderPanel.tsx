@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { X, MessageSquare, Plus, Edit, Trash2 } from 'lucide-react';
+import { X, MessageSquare, Plus, Edit, Trash2, Mail } from 'lucide-react';
 
 interface MassReminderPanelProps {
   onClose: () => void;
@@ -171,8 +170,17 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
                 </SelectItem>
                 <SelectItem value="email">
                   <div className="flex items-center">
-                    <MessageSquare className="w-4 h-4 mr-2 text-blue-600" />
+                    <Mail className="w-4 h-4 mr-2 text-blue-600" />
                     Email
+                  </div>
+                </SelectItem>
+                <SelectItem value="both">
+                  <div className="flex items-center">
+                    <div className="flex mr-2">
+                      <MessageSquare className="w-4 h-4 text-green-600" />
+                      <Mail className="w-4 h-4 text-blue-600 -ml-1" />
+                    </div>
+                    Ambos
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -180,7 +188,7 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
           </div>
 
           {/* WhatsApp Template Selection */}
-          {selectedChannel === 'whatsapp' && (
+          {(selectedChannel === 'whatsapp' || selectedChannel === 'both') && (
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-sm font-medium text-gray-700">Plantilla de WhatsApp</label>
@@ -286,7 +294,9 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
           {/* Message Template */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {selectedChannel === 'whatsapp' ? 'Mensaje de WhatsApp' : 'Mensaje'}
+              {selectedChannel === 'whatsapp' ? 'Mensaje de WhatsApp' : 
+               selectedChannel === 'email' ? 'Mensaje de Email' :
+               'Mensaje'}
             </label>
             <Textarea 
               value={message}
@@ -294,7 +304,7 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
               className="min-h-24 bg-white border-gray-300 rounded-lg"
               placeholder="Personaliza tu mensaje..."
             />
-            {selectedChannel === 'whatsapp' ? (
+            {selectedChannel === 'whatsapp' || selectedChannel === 'both' ? (
               <p className="text-xs text-gray-500 mt-1">
                 Variables disponibles: [CLIENTE], [MONTO], [ORDEN], [FECHA_VENCIMIENTO], [LINK_PAGO]
               </p>
@@ -320,7 +330,9 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
               <div>
                 <p className="text-gray-600">Canal:</p>
                 <p className="font-semibold text-gray-900">
-                  {selectedChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}
+                  {selectedChannel === 'whatsapp' ? 'WhatsApp' : 
+                   selectedChannel === 'email' ? 'Email' : 
+                   'WhatsApp y Email'}
                 </p>
               </div>
               <div>
