@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
+import { InvoiceDropdown } from '@/components/InvoiceDropdown';
 import { Plus, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -185,17 +185,13 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                       <div className="flex space-x-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="border-blue-400 text-blue-600 hover:bg-blue-50"
-                              onClick={() => handleInvoiceClick(order)}
-                            >
-                              <FileText className="w-4 h-4" />
-                            </Button>
+                            <InvoiceDropdown 
+                              order={order} 
+                              onInvoiceClick={handleInvoiceClick}
+                            />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>{order.isInvoiced ? 'Editar Factura' : 'Facturar'}</p>
+                            <p>{order.isInvoiced ? 'Opciones de Factura' : 'Facturar'}</p>
                           </TooltipContent>
                         </Tooltip>
                         
@@ -204,7 +200,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              className="border-gray-400 text-gray-600 hover:bg-gray-50"
+                              className="border-blue-400 text-blue-600 hover:bg-blue-50"
                               onClick={() => handlePaymentLinkClick(order)}
                             >
                               <Link className="w-4 h-4" />
