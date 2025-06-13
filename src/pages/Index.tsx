@@ -29,12 +29,6 @@ const Index = () => {
               />
               <span className="ml-3 text-sm text-gray-500">Gestión Comercial</span>
             </div>
-            <Button 
-              onClick={() => setShowReminderPanel(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Enviar Recordatorios
-            </Button>
           </div>
         </div>
       </div>
@@ -73,7 +67,10 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="orders" className="mt-6">
-            <SalesOrders onClientClick={setSelectedClient} />
+            <SalesOrders 
+              onClientClick={setSelectedClient}
+              onShowReminderPanel={() => setShowReminderPanel(true)}
+            />
           </TabsContent>
         </Tabs>
       </div>

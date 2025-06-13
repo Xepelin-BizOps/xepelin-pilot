@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,9 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface SalesOrdersProps {
   onClientClick: (client: any) => void;
+  onShowReminderPanel: () => void;
 }
 
-export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
+export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowReminderPanel }) => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
@@ -177,6 +177,12 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Órdenes de Venta</h3>
             <div className="flex space-x-2">
+              <Button 
+                onClick={onShowReminderPanel}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Enviar Recordatorios
+              </Button>
               <Input 
                 placeholder="Buscar órdenes..." 
                 className="w-64 bg-white border-gray-400 rounded-lg focus:border-blue-500"
