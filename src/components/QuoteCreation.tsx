@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
+import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
 import { Plus, FileText, Link, Send, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +22,7 @@ interface QuoteCreationProps {
 export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, showCreationForm, onToggleCreation }) => {
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [showMessagePanel, setShowMessagePanel] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [editingQuote, setEditingQuote] = useState<any>(null);
@@ -176,6 +177,13 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     }
   };
 
+  const handleSendMessage = (quote: any) => {
+    // Filter quotes for the same client
+    const clientQuotes = quotes.filter(q => q.client === quote.client);
+    setSelectedQuote({ ...quote, clientQuotes });
+    setShowMessagePanel(true);
+  };
+
   if (showCreationForm) {
     return (
       <QuoteCreationForm 
@@ -296,6 +304,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                               size="sm" 
                               variant="outline" 
                               className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              onClick={() => handleSendMessage(quote)}
                             >
                               <Send className="w-4 h-4" />
                             </Button>
@@ -437,6 +446,17 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             totalAmount={selectedQuote.amount}
             clientName={selectedQuote.client}
             orderDate={selectedQuote.date}
+          />
+        )}
+
+        {/* Message Selection Panel */}
+        {showMessagePanel && selectedQuote && (
+          <MessageSelectionPanel
+            isOpen={showMessagePanel}
+            onClose={() => setShowMessagePanel(false)}
+            clientName={selectedQuote.client}
+            type="quote"
+            items={selectedQuote.clientQuotes || [selectedQuote]}
           />
         )}
       </div>

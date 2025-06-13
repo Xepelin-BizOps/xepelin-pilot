@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
+import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
 import { MoreHorizontal, FileText, Link, Send } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +21,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [showMessagePanel, setShowMessagePanel] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const { toast } = useToast();
 
@@ -106,6 +107,13 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
   const handleInvoiceClick = (order: any) => {
     setSelectedOrder(order);
     setShowInvoiceForm(true);
+  };
+
+  const handleSendMessage = (order: any) => {
+    // Filter orders for the same client
+    const clientOrders = orders.filter(o => o.client === order.client);
+    setSelectedOrder({ ...order, clientOrders });
+    setShowMessagePanel(true);
   };
 
   const handleIndividualReminder = (order: any) => {
@@ -302,22 +310,20 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                           </Tooltip>
                         )}
                         
-                        {order.pending > 0 && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                onClick={() => handleIndividualReminder(order)}
-                              >
-                                <Send className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Enviar Mensaje</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              onClick={() => handleSendMessage(order)}
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Enviar Mensaje</p>
+                          </TooltipContent>
+                        </Tooltip>
                         
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -366,6 +372,17 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
             totalAmount={selectedOrder.amount}
             clientName={selectedOrder.client}
             orderDate={selectedOrder.date}
+          />
+        )}
+
+        {/* Message Selection Panel */}
+        {showMessagePanel && selectedOrder && (
+          <MessageSelectionPanel
+            isOpen={showMessagePanel}
+            onClose={() => setShowMessagePanel(false)}
+            clientName={selectedOrder.client}
+            type="order"
+            items={selectedOrder.clientOrders || [selectedOrder]}
           />
         )}
       </div>
