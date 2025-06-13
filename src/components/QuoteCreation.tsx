@@ -4,11 +4,14 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
-import { Plus, FileText, Link, Bell } from 'lucide-react';
+import { Plus, FileText, Link, Bell, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuoteCreationProps {
   onClientClick: (client: any) => void;
@@ -20,6 +23,8 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
+  const [showQuoteDetails, setShowQuoteDetails] = useState(false);
+  const { toast } = useToast();
 
   const quotes = [
     {
@@ -29,16 +34,26 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       amount: 32000,
       status: 'Pendiente',
       products: 3,
-      isInvoiced: false
+      isInvoiced: false,
+      items: [
+        { name: 'Laptop HP ProBook', quantity: 2, price: 15000 },
+        { name: 'Mouse inalámbrico', quantity: 1, price: 500 },
+        { name: 'Teclado mecánico', quantity: 1, price: 1500 }
+      ]
     },
     {
       id: 'COT-2024-002', 
       client: 'Innovación Digital S.C.',
       date: '2024-06-11',
       amount: 45600,
-      status: 'Convertida',
+      status: 'Confirmada',
       products: 5,
-      isInvoiced: true
+      isInvoiced: true,
+      items: [
+        { name: 'Monitor 4K', quantity: 3, price: 12000 },
+        { name: 'Webcam HD', quantity: 2, price: 2800 },
+        { name: 'Auriculares profesionales', quantity: 2, price: 4000 }
+      ]
     },
     {
       id: 'COT-2024-003',
@@ -47,7 +62,11 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       amount: 18900,
       status: 'En Revisión',
       products: 2,
-      isInvoiced: false
+      isInvoiced: false,
+      items: [
+        { name: 'Impresora láser', quantity: 1, price: 8900 },
+        { name: 'Papel de impresión', quantity: 10, price: 1000 }
+      ]
     }
   ];
 
@@ -72,6 +91,44 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     setShowInvoiceForm(true);
   };
 
+  const handleViewDetails = (quote: any) => {
+    setSelectedQuote(quote);
+    setShowQuoteDetails(true);
+  };
+
+  const handleConfirmQuote = (quote: any) => {
+    console.log('Confirmando cotización:', quote.id);
+    toast({
+      title: "Cotización confirmada",
+      description: `La cotización ${quote.id} ha sido confirmada`,
+    });
+  };
+
+  const handleDeleteQuote = (quote: any) => {
+    console.log('Eliminando cotización:', quote.id);
+    toast({
+      title: "Cotización eliminada",
+      description: `La cotización ${quote.id} ha sido eliminada`,
+      variant: "destructive",
+    });
+  };
+
+  const handleEditQuote = (quote: any) => {
+    console.log('Editando cotización:', quote.id);
+    toast({
+      title: "Editando cotización",
+      description: `Abriendo editor para ${quote.id}`,
+    });
+  };
+
+  const handleDuplicateQuote = (quote: any) => {
+    console.log('Duplicando cotización:', quote.id);
+    toast({
+      title: "Cotización duplicada",
+      description: `Se ha creado una copia de ${quote.id}`,
+    });
+  };
+
   if (showCreationForm) {
     return <QuoteCreationForm onClose={() => onToggleCreation(false)} />;
   }
@@ -88,9 +145,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                 placeholder="Buscar cotizaciones..." 
                 className="w-64 bg-white border-gray-300 rounded-lg"
               />
-              <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
-                Filtros
-              </Button>
               <Button 
                 onClick={() => onToggleCreation(true)}
                 className="bg-blue-600 hover:bg-blue-700"
@@ -131,15 +185,20 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                     <td className="py-3 px-4 font-semibold text-gray-900">${quote.amount.toLocaleString()}</td>
                     <td className="py-3 px-4">
                       <Badge 
-                        variant={quote.status === 'Convertida' ? 'default' : 'secondary'}
-                        className={quote.status === 'Convertida' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}
+                        variant={quote.status === 'Confirmada' ? 'default' : 'secondary'}
+                        className={quote.status === 'Confirmada' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}
                       >
                         {quote.status}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                          onClick={() => handleViewDetails(quote)}
+                        >
                           Ver
                         </Button>
                         
@@ -190,11 +249,41 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                           </TooltipContent>
                         </Tooltip>
                         
-                        {quote.status === 'Pendiente' && (
-                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                            Confirmar
-                          </Button>
-                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                            {quote.status === 'Pendiente' && (
+                              <DropdownMenuItem 
+                                className="hover:bg-gray-50"
+                                onClick={() => handleConfirmQuote(quote)}
+                              >
+                                Confirmar
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-50"
+                              onClick={() => handleEditQuote(quote)}
+                            >
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-50"
+                              onClick={() => handleDuplicateQuote(quote)}
+                            >
+                              Duplicar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-50 text-red-600"
+                              onClick={() => handleDeleteQuote(quote)}
+                            >
+                              Eliminar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </td>
                   </tr>
@@ -203,6 +292,75 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             </table>
           </div>
         </Card>
+
+        {/* Quote Details Dialog */}
+        {showQuoteDetails && selectedQuote && (
+          <Dialog open={showQuoteDetails} onOpenChange={setShowQuoteDetails}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Detalles de Cotización - {selectedQuote.id}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Cliente:</label>
+                    <p className="text-gray-900">{selectedQuote.client}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Fecha:</label>
+                    <p className="text-gray-900">{selectedQuote.date}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Estado:</label>
+                    <Badge 
+                      variant={selectedQuote.status === 'Confirmada' ? 'default' : 'secondary'}
+                      className={selectedQuote.status === 'Confirmada' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}
+                    >
+                      {selectedQuote.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Total de Productos:</label>
+                    <p className="text-gray-900">{selectedQuote.products} items</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-2">Productos:</h4>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="text-left py-2 px-3 text-sm font-medium text-gray-700">Producto</th>
+                          <th className="text-left py-2 px-3 text-sm font-medium text-gray-700">Cantidad</th>
+                          <th className="text-left py-2 px-3 text-sm font-medium text-gray-700">Precio Unit.</th>
+                          <th className="text-left py-2 px-3 text-sm font-medium text-gray-700">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedQuote.items?.map((item: any, index: number) => (
+                          <tr key={index} className="border-t">
+                            <td className="py-2 px-3 text-sm">{item.name}</td>
+                            <td className="py-2 px-3 text-sm">{item.quantity}</td>
+                            <td className="py-2 px-3 text-sm">${item.price.toLocaleString()}</td>
+                            <td className="py-2 px-3 text-sm font-medium">${(item.quantity * item.price).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-semibold text-gray-900">Total:</span>
+                    <span className="text-xl font-bold text-blue-600">${selectedQuote.amount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* Payment Link Form */}
         {showPaymentLinkForm && selectedQuote && (
