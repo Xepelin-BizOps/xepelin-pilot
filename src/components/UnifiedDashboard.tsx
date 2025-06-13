@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,8 +11,7 @@ export const UnifiedDashboard = () => {
     { label: 'Total Vendido', value: '$1,850,000', subtext: 'MXN', change: '+8%' },
     { label: 'Por Cobrar', value: '$650,000', subtext: 'MXN', change: '-5%' },
     { label: 'Tasa Conversión', value: '75.5%', subtext: 'Cotiz → Venta', change: '+3%' },
-    { label: 'Clientes Activos', value: '43', subtext: 'Este período', change: '+2' },
-    { label: 'Pipeline', value: '89%', subtext: 'Salud general', change: 'Estable' }
+    { label: 'Clientes Activos', value: '43', subtext: 'Este período', change: '+2' }
   ];
 
   return (
