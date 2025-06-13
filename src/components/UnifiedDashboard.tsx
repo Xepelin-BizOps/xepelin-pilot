@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,25 +32,27 @@ export const UnifiedDashboard = () => {
         </Select>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {kpis.map((kpi, index) => (
-          <Card key={index} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600 font-medium">{kpi.label}</p>
-              <div className="flex items-baseline space-x-2">
-                <p className="text-xl font-bold text-gray-900">{kpi.value}</p>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  kpi.change.includes('+') ? 'bg-blue-50 text-blue-600' : 
-                  kpi.change.includes('-') ? 'bg-gray-100 text-gray-600' : 
-                  'bg-gray-100 text-gray-600'
-                }`}>
-                  {kpi.change}
-                </span>
+      <div className="flex justify-center">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl">
+          {kpis.map((kpi, index) => (
+            <Card key={index} className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600 font-medium">{kpi.label}</p>
+                <div className="flex items-baseline space-x-2">
+                  <p className="text-xl font-bold text-gray-900">{kpi.value}</p>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    kpi.change.includes('+') ? 'bg-blue-50 text-blue-600' : 
+                    kpi.change.includes('-') ? 'bg-gray-100 text-gray-600' : 
+                    'bg-gray-100 text-gray-600'
+                  }`}>
+                    {kpi.change}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">{kpi.subtext}</p>
               </div>
-              <p className="text-xs text-gray-500">{kpi.subtext}</p>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
