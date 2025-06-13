@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CIFUploader } from '@/components/CIFUploader';
 import { Download, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,6 +34,15 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   const [regimenFiscal, setRegimenFiscal] = useState('');
   const [invoiceGenerated, setInvoiceGenerated] = useState(false);
   const { toast } = useToast();
+
+  const handleCIFProcessed = (cifData: any) => {
+    setRfcReceptor(cifData.rfc);
+    setCodigoPostal(cifData.codigoPostal);
+    setUsoCfdi(cifData.usoCfdi);
+    setMetodoPago(cifData.metodoPago);
+    setFormaPago(cifData.formaPago);
+    setRegimenFiscal(cifData.regimenFiscal);
+  };
 
   const handleGenerateInvoice = () => {
     console.log('Generando factura...', {
@@ -89,6 +98,9 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
         
         {!invoiceGenerated ? (
           <div className="space-y-6">
+            {/* CIF Uploader */}
+            <CIFUploader onCIFProcessed={handleCIFProcessed} />
+
             {/* Información de la orden */}
             <Card className="p-4 bg-blue-50 border-blue-200">
               <h3 className="text-lg font-semibold text-blue-900 mb-4">Información de la orden</h3>
