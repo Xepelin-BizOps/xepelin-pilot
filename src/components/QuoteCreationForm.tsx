@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,15 +10,34 @@ import { Search, Plus, FileText, UserPlus, Package, Mail, MessageSquare } from '
 
 interface QuoteCreationFormProps {
   onClose: () => void;
+  editingQuote?: any;
 }
 
-export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose }) => {
+export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, editingQuote }) => {
   const [products, setProducts] = useState([
     { id: 1, sku: 'PROD-001', name: 'Laptop Dell Inspiron 15', price: 15000, quantity: 2, unit: 'pcs' }
   ]);
   const [showProductSearch, setShowProductSearch] = useState(false);
   const [showClientDialog, setShowClientDialog] = useState(false);
   const [showManualProduct, setShowManualProduct] = useState(false);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [quoteDate, setQuoteDate] = useState('');
+
+  useEffect(() => {
+    if (editingQuote) {
+      // Cargar datos de la cotización a editar
+      setProducts(editingQuote.items || []);
+      setSelectedClient(editingQuote.client || '');
+      setQuoteDate(editingQuote.date || '');
+    } else {
+      // Resetear para nueva cotización
+      setProducts([
+        { id: 1, sku: 'PROD-001', name: 'Laptop Dell Inspiron 15', price: 15000, quantity: 2, unit: 'pcs' }
+      ]);
+      setSelectedClient('');
+      setQuoteDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [editingQuote]);
 
   const subtotal = products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
   const iva = subtotal * 0.16;
@@ -57,7 +75,9 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose })
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Nueva Cotización</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingQuote ? `Editar Cotización - ${editingQuote.id}` : 'Nueva Cotización'}
+              </h3>
               <Button variant="outline" onClick={onClose} className="border-gray-300 text-gray-600 hover:bg-gray-50">
                 Cerrar
               </Button>
@@ -68,14 +88,14 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose })
               <div>
                 <Label htmlFor="client">Cliente</Label>
                 <div className="flex space-x-2">
-                  <Select>
+                  <Select value={selectedClient} onValueChange={setSelectedClient}>
                     <SelectTrigger className="bg-white border-gray-300 rounded-lg">
                       <SelectValue placeholder="Seleccionar cliente" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
-                      <SelectItem value="client1">Tecnología Avanzada S.A.</SelectItem>
-                      <SelectItem value="client2">Innovación Digital S.C.</SelectItem>
-                      <SelectItem value="client3">Sistemas Corporativos</SelectItem>
+                      <SelectItem value="Tecnología Avanzada S.A.">Tecnología Avanzada S.A.</SelectItem>
+                      <SelectItem value="Innovación Digital S.C.">Innovación Digital S.C.</SelectItem>
+                      <SelectItem value="Sistemas Corporativos">Sistemas Corporativos</SelectItem>
                     </SelectContent>
                   </Select>
                   
@@ -114,8 +134,9 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose })
                 <Label htmlFor="date">Fecha</Label>
                 <Input 
                   type="date" 
+                  value={quoteDate}
+                  onChange={(e) => setQuoteDate(e.target.value)}
                   className="bg-white border-gray-300 rounded-lg"
-                  defaultValue="2024-06-12"
                 />
               </div>
             </div>
@@ -258,6 +279,12 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose })
                           <Input 
                             type="number" 
                             value={product.quantity}
+                            onChange={(e) => {
+                              const newQuantity = parseInt(e.target.value) || 0;
+                              setProducts(products.map(p => 
+                                p.id === product.id ? { ...p, quantity: newQuantity } : p
+                              ));
+                            }}
                             className="w-20 bg-white border-gray-300 rounded"
                           />
                         </td>
@@ -305,7 +332,7 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose })
 
             <div className="mt-6 space-y-2">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                Crear Cotización
+                {editingQuote ? 'Actualizar Cotización' : 'Crear Cotización'}
               </Button>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">

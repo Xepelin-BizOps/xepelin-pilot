@@ -24,9 +24,10 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
+  const [editingQuote, setEditingQuote] = useState<any>(null);
   const { toast } = useToast();
 
-  const quotes = [
+  const [quotes, setQuotes] = useState([
     {
       id: 'COT-2024-001',
       client: 'Tecnología Avanzada S.A.',
@@ -68,7 +69,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
         { name: 'Papel de impresión', quantity: 10, price: 1000 }
       ]
     }
-  ];
+  ]);
 
   const handleClientClick = (clientName: string) => {
     onClientClick({
@@ -97,14 +98,24 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   };
 
   const handleConfirmQuote = (quote: any) => {
+    setQuotes(prevQuotes => 
+      prevQuotes.map(q => 
+        q.id === quote.id 
+          ? { ...q, status: 'Confirmada' }
+          : q
+      )
+    );
+    
     console.log('Confirmando cotización:', quote.id);
     toast({
       title: "Cotización confirmada",
-      description: `La cotización ${quote.id} ha sido confirmada`,
+      description: `La cotización ${quote.id} ha sido confirmada exitosamente`,
     });
   };
 
   const handleDeleteQuote = (quote: any) => {
+    setQuotes(prevQuotes => prevQuotes.filter(q => q.id !== quote.id));
+    
     console.log('Eliminando cotización:', quote.id);
     toast({
       title: "Cotización eliminada",
@@ -114,6 +125,9 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   };
 
   const handleEditQuote = (quote: any) => {
+    setEditingQuote(quote);
+    onToggleCreation(true);
+    
     console.log('Editando cotización:', quote.id);
     toast({
       title: "Editando cotización",
@@ -122,15 +136,25 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   };
 
   const handleDuplicateQuote = (quote: any) => {
+    const duplicatedQuote = {
+      ...quote,
+      id: `COT-2024-${String(quotes.length + 1).padStart(3, '0')}`,
+      date: new Date().toISOString().split('T')[0],
+      status: 'Pendiente',
+      isInvoiced: false
+    };
+    
+    setQuotes(prevQuotes => [...prevQuotes, duplicatedQuote]);
+    
     console.log('Duplicando cotización:', quote.id);
     toast({
       title: "Cotización duplicada",
-      description: `Se ha creado una copia de ${quote.id}`,
+      description: `Se ha creado una copia como ${duplicatedQuote.id}`,
     });
   };
 
   if (showCreationForm) {
-    return <QuoteCreationForm onClose={() => onToggleCreation(false)} />;
+    return <QuoteCreationForm onClose={() => onToggleCreation(false)} editingQuote={editingQuote} />;
   }
 
   return (
