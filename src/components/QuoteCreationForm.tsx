@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Plus, FileText, UserPlus, Package, Mail, MessageSquare, Trash2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Search, Plus, FileText, UserPlus, Package, Mail, MessageSquare, Trash2, Download, Upload, ChevronDown } from 'lucide-react';
 
 interface QuoteCreationFormProps {
   onClose: () => void;
@@ -123,6 +124,29 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
     onClose();
   };
 
+  const downloadExcelTemplate = () => {
+    // Crear datos de ejemplo para el template
+    const templateData = [
+      ['Nombre del Producto', 'SKU', 'Precio Unitario', 'Unidad'],
+      ['Laptop HP Pavilion', 'PROD-005', '15000', 'pcs'],
+      ['Monitor Dell 24"', 'PROD-006', '4500', 'pcs'],
+      ['Teclado Mecánico', 'PROD-007', '1200', 'pcs']
+    ];
+
+    // Convertir a CSV (simulando Excel)
+    const csvContent = templateData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'template_productos.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Quote Creation Form */}
@@ -212,89 +236,105 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
                     Buscar Catálogo
                   </Button>
                   
-                  <Dialog open={showManualProduct} onOpenChange={setShowManualProduct}>
-                    <DialogTrigger asChild>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
                       <Button 
                         variant="outline" 
                         size="sm"
                         className="border-blue-300 text-blue-600 hover:bg-blue-50"
                       >
+                        <Package className="w-4 h-4 mr-2" />
+                        Crear Productos y Servicios
+                        <ChevronDown className="w-4 h-4 ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                      <DropdownMenuItem 
+                        className="hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setShowManualProduct(true)}
+                      >
                         <Plus className="w-4 h-4 mr-2" />
                         Agregar Manual
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-white">
-                      <DialogHeader>
-                        <DialogTitle>Agregar Producto Manual</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="productName">Nombre del Producto</Label>
-                          <Input 
-                            placeholder="Ej: Laptop HP Pavilion" 
-                            value={manualProduct.name}
-                            onChange={(e) => setManualProduct({ ...manualProduct, name: e.target.value })}
-                            className="bg-white border-gray-300 rounded-lg" 
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="productSku">SKU</Label>
-                          <Input 
-                            placeholder="PROD-005" 
-                            value={manualProduct.sku}
-                            onChange={(e) => setManualProduct({ ...manualProduct, sku: e.target.value })}
-                            className="bg-white border-gray-300 rounded-lg" 
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="productPrice">Precio Unitario</Label>
-                            <Input 
-                              type="number" 
-                              placeholder="5000" 
-                              value={manualProduct.price || ''}
-                              onChange={(e) => setManualProduct({ ...manualProduct, price: Number(e.target.value) })}
-                              className="bg-white border-gray-300 rounded-lg" 
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="productUnit">Unidad</Label>
-                            <Select 
-                              value={manualProduct.unit} 
-                              onValueChange={(value) => setManualProduct({ ...manualProduct, unit: value })}
-                            >
-                              <SelectTrigger className="bg-white border-gray-300 rounded-lg">
-                                <SelectValue placeholder="Seleccionar" />
-                              </SelectTrigger>
-                              <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
-                                <SelectItem value="pcs">Piezas</SelectItem>
-                                <SelectItem value="kg">Kilogramos</SelectItem>
-                                <SelectItem value="mt">Metros</SelectItem>
-                                <SelectItem value="hrs">Horas</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <Button 
-                          className="w-full bg-blue-600 hover:bg-blue-700" 
-                          onClick={addManualProduct}
-                        >
-                          Agregar Producto
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="border-gray-300 text-gray-600 hover:bg-gray-50"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Importar Excel
-                  </Button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="hover:bg-gray-50 cursor-pointer"
+                        onClick={downloadExcelTemplate}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Descargar Template Excel
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="hover:bg-gray-50 cursor-pointer">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Importar Excel
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
+
+              {/* Manual Product Dialog */}
+              <Dialog open={showManualProduct} onOpenChange={setShowManualProduct}>
+                <DialogContent className="bg-white">
+                  <DialogHeader>
+                    <DialogTitle>Agregar Producto Manual</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="productName">Nombre del Producto</Label>
+                      <Input 
+                        placeholder="Ej: Laptop HP Pavilion" 
+                        value={manualProduct.name}
+                        onChange={(e) => setManualProduct({ ...manualProduct, name: e.target.value })}
+                        className="bg-white border-gray-300 rounded-lg" 
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="productSku">SKU</Label>
+                      <Input 
+                        placeholder="PROD-005" 
+                        value={manualProduct.sku}
+                        onChange={(e) => setManualProduct({ ...manualProduct, sku: e.target.value })}
+                        className="bg-white border-gray-300 rounded-lg" 
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="productPrice">Precio Unitario</Label>
+                        <Input 
+                          type="number" 
+                          placeholder="5000" 
+                          value={manualProduct.price || ''}
+                          onChange={(e) => setManualProduct({ ...manualProduct, price: Number(e.target.value) })}
+                          className="bg-white border-gray-300 rounded-lg" 
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="productUnit">Unidad</Label>
+                        <Select 
+                          value={manualProduct.unit} 
+                          onValueChange={(value) => setManualProduct({ ...manualProduct, unit: value })}
+                        >
+                          <SelectTrigger className="bg-white border-gray-300 rounded-lg">
+                            <SelectValue placeholder="Seleccionar" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                            <SelectItem value="pcs">Piezas</SelectItem>
+                            <SelectItem value="kg">Kilogramos</SelectItem>
+                            <SelectItem value="mt">Metros</SelectItem>
+                            <SelectItem value="hrs">Horas</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-blue-600 hover:bg-blue-700" 
+                      onClick={addManualProduct}
+                    >
+                      Agregar Producto
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               {/* Product Search Dropdown */}
               {showProductSearch && (
