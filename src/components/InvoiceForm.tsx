@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Download, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { CIFUploader } from '@/components/CIFUploader';
 
 interface InvoiceFormProps {
   isOpen: boolean;
@@ -34,6 +35,12 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   const [regimenFiscal, setRegimenFiscal] = useState('');
   const [invoiceGenerated, setInvoiceGenerated] = useState(false);
   const { toast } = useToast();
+
+  const handleCIFData = (cifData: any) => {
+    setRfcReceptor(cifData.rfc);
+    setCodigoPostal(cifData.codigoPostal);
+    setRegimenFiscal(cifData.regimenFiscal);
+  };
 
   const handleGenerateInvoice = () => {
     console.log('Generando factura...', {
@@ -80,7 +87,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl mx-auto">
+      <DialogContent className="max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-gray-900">
             {invoiceGenerated ? 'Factura Generada' : 'Emitir Factura'}
@@ -200,6 +207,11 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* CIF Uploader */}
+            <div className="mt-6">
+              <CIFUploader onCIFData={handleCIFData} />
             </div>
 
             {/* Botones */}
