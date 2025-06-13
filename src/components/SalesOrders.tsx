@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
-import { MoreHorizontal, FileText, Link, Bell } from 'lucide-react';
+import { MoreHorizontal, FileText, Link, Send } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -196,7 +197,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                 className="bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={handleMassReminders}
               >
-                <Bell className="w-4 h-4 mr-2" />
+                <Send className="w-4 h-4 mr-2" />
                 Enviar Recordatorios ({selectedOrders.length})
               </Button>
             </div>
@@ -309,11 +310,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                                 onClick={() => handleIndividualReminder(order)}
                               >
-                                <Bell className="w-4 h-4" />
+                                <Send className="w-4 h-4" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Enviar Recordatorio</p>
+                              <p>Enviar Mensaje</p>
                             </TooltipContent>
                           </Tooltip>
                         )}
