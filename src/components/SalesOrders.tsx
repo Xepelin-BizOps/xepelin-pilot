@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
 import { MoreHorizontal, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 
 interface SalesOrdersProps {
   onClientClick: (client: any) => void;
@@ -19,6 +21,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const { toast } = useToast();
 
   const orders = [
     {
@@ -59,6 +62,19 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
       paid: 18900,
       pending: 0,
       isInvoiced: true
+    },
+    {
+      id: 'ORD-2024-005',
+      quoteRef: 'COT-2024-006',
+      client: 'Tecnología Avanzada S.A.',
+      date: '2024-06-13',
+      amount: 15000,
+      status: 'Pendiente Pago',
+      paymentLink: 'https://pay.xepelin.com/ord-005',
+      hasCFDI: false,
+      paid: 0,
+      pending: 15000,
+      isInvoiced: false
     }
   ];
 
@@ -91,6 +107,69 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
     setShowInvoiceForm(true);
   };
 
+  const handleIndividualReminder = (order: any) => {
+    console.log('Enviando recordatorio individual para:', order);
+    
+    // Verificar si el cliente tiene múltiples órdenes pendientes
+    const clientPendingOrders = orders.filter(o => 
+      o.client === order.client && o.pending > 0
+    );
+
+    if (clientPendingOrders.length > 1) {
+      // Agrupar todas las órdenes pendientes del cliente
+      const totalPending = clientPendingOrders.reduce((sum, o) => sum + o.pending, 0);
+      const orderIds = clientPendingOrders.map(o => o.id).join(', ');
+      
+      toast({
+        title: "Recordatorio Agrupado Enviado",
+        description: `Se envió un recordatorio consolidado a ${order.client} por ${clientPendingOrders.length} órdenes pendientes (${orderIds}) con un total de $${totalPending.toLocaleString()}.`,
+        duration: 5000,
+      });
+    } else {
+      // Enviar recordatorio individual
+      toast({
+        title: "Recordatorio Enviado",
+        description: `Se envió un recordatorio a ${order.client} por la orden ${order.id} con monto pendiente de $${order.pending.toLocaleString()}.`,
+        duration: 4000,
+      });
+    }
+  };
+
+  const handleMassReminders = () => {
+    console.log('Enviando recordatorios masivos para órdenes:', selectedOrders);
+    
+    // Agrupar órdenes por cliente
+    const ordersByClient = selectedOrders.reduce((acc, orderId) => {
+      const order = orders.find(o => o.id === orderId);
+      if (order && order.pending > 0) {
+        if (!acc[order.client]) {
+          acc[order.client] = [];
+        }
+        acc[order.client].push(order);
+      }
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    const clientCount = Object.keys(ordersByClient).length;
+    let totalOrders = 0;
+    
+    // Contar total de órdenes y enviar recordatorios agrupados por cliente
+    Object.entries(ordersByClient).forEach(([client, clientOrders]) => {
+      totalOrders += clientOrders.length;
+      const totalPending = clientOrders.reduce((sum, order) => sum + order.pending, 0);
+      console.log(`Recordatorio agrupado para ${client}: ${clientOrders.length} órdenes, $${totalPending.toLocaleString()}`);
+    });
+
+    toast({
+      title: `Recordatorios Masivos Enviados`,
+      description: `Se enviaron ${clientCount} recordatorios agrupados por cliente, cubriendo ${totalOrders} órdenes pendientes.`,
+      duration: 5000,
+    });
+
+    // Limpiar selección
+    setSelectedOrders([]);
+  };
+
   return (
     <TooltipProvider>
       <div className="space-y-6">
@@ -107,7 +186,10 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
 
           {selectedOrders.length > 0 && (
             <div className="mb-4">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleMassReminders}
+              >
                 <Bell className="w-4 h-4 mr-2" />
                 Enviar Recordatorios ({selectedOrders.length})
               </Button>
@@ -219,12 +301,13 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                               <Button 
                                 size="sm" 
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={() => handleIndividualReminder(order)}
                               >
                                 <Bell className="w-4 h-4" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Recordatorio</p>
+                              <p>Enviar Recordatorio</p>
                             </TooltipContent>
                           </Tooltip>
                         )}

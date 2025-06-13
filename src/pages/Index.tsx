@@ -7,6 +7,7 @@ import { ClientHistoryPanel } from '@/components/ClientHistoryPanel';
 import { MassReminderPanel } from '@/components/MassReminderPanel';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Toaster } from '@/components/ui/toaster';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('quotes');
@@ -89,6 +90,9 @@ const Index = () => {
       {showReminderPanel && (
         <MassReminderPanel onClose={() => setShowReminderPanel(false)} />
       )}
+
+      {/* Toast Notifications */}
+      <Toaster />
     </div>
   );
 };
