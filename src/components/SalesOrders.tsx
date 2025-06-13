@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
-import { FileText, Link, Bell, MoreVertical, Download, Eye, X } from 'lucide-react';
+import { Plus, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SalesOrdersProps {
@@ -88,21 +89,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   const handleInvoiceClick = (order: any) => {
     setSelectedOrder(order);
     setShowInvoiceForm(true);
-  };
-
-  const handleDownloadInvoice = (order: any) => {
-    console.log('Descargando factura para:', order.id);
-    // Aquí iría la lógica para descargar la factura
-  };
-
-  const handleViewInvoice = (order: any) => {
-    console.log('Viendo factura para:', order.id);
-    // Aquí iría la lógica para ver la factura
-  };
-
-  const handleCancelInvoice = (order: any) => {
-    console.log('Cancelando factura para:', order.id);
-    // Aquí iría la lógica para cancelar la factura
   };
 
   return (
@@ -197,7 +183,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
-                        {/* Botón de factura - siempre visible */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
@@ -214,26 +199,22 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                           </TooltipContent>
                         </Tooltip>
                         
-                        {/* Botón de link de pago - solo si no está completamente pagado */}
-                        {order.pending > 0 && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="border-gray-400 text-gray-600 hover:bg-gray-50"
-                                onClick={() => handlePaymentLinkClick(order)}
-                              >
-                                <Link className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Link de Pago</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-gray-400 text-gray-600 hover:bg-gray-50"
+                              onClick={() => handlePaymentLinkClick(order)}
+                            >
+                              <Link className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Link de Pago</p>
+                          </TooltipContent>
+                        </Tooltip>
                         
-                        {/* Botón de recordatorio - solo si hay monto pendiente */}
                         {order.pending > 0 && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -250,64 +231,10 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                           </Tooltip>
                         )}
                         
-                        {/* Botones específicos para facturas pagadas */}
-                        {order.isInvoiced && order.status === 'Pagado' && (
-                          <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="border-gray-400 text-gray-600 hover:bg-gray-50"
-                                  onClick={() => handleDownloadInvoice(order)}
-                                >
-                                  <Download className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Descargar Factura</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="border-gray-400 text-gray-600 hover:bg-gray-50"
-                                  onClick={() => handleViewInvoice(order)}
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Ver Factura</p>
-                              </TooltipContent>
-                            </Tooltip>
-                            
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  className="border-red-400 text-red-600 hover:bg-red-50"
-                                  onClick={() => handleCancelInvoice(order)}
-                                >
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Cancelar Factura</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </>
-                        )}
-                        
-                        {/* Menú de tres puntos */}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button size="sm" variant="outline" className="border-gray-400 text-gray-600 hover:bg-gray-50">
-                              <MoreVertical className="w-3 h-3" />
+                              <Plus className="w-3 h-3" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg">
