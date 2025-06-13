@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -93,19 +94,19 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200 rounded-xl shadow-lg">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Órdenes de Venta</h3>
+            <h3 className="text-lg font-semibold text-blue-900">Órdenes de Venta</h3>
             <div className="flex space-x-2">
               <Input 
                 placeholder="Buscar órdenes..." 
-                className="w-64 bg-white border-gray-300 rounded-lg"
+                className="w-64 bg-white/80 border-blue-300 rounded-lg focus:border-blue-500"
               />
-              <Button variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
+              <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50 bg-white/80">
                 Filtros
               </Button>
               {selectedOrders.length > 0 && (
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
                   <Bell className="w-4 h-4 mr-2" />
                   Enviar Recordatorios ({selectedOrders.length})
                 </Button>
@@ -113,14 +114,14 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
             </div>
           </div>
 
-          <div className="overflow-hidden border border-gray-200 rounded-lg">
+          <div className="overflow-hidden border border-blue-200 rounded-xl bg-white/80 backdrop-blur-sm">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gradient-to-r from-blue-100 to-purple-100">
                 <tr>
                   <th className="text-left py-3 px-4 w-12">
                     <input 
                       type="checkbox" 
-                      className="rounded border-gray-300"
+                      className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
                       onChange={(e) => {
                         if (e.target.checked) {
                           setSelectedOrders(orders.filter(o => o.pending > 0).map(o => o.id));
@@ -130,51 +131,51 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                       }}
                     />
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">ID Orden</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Cliente</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Ref. Cotización</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Fecha</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Monto Total</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Pagado</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Pendiente</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Estado</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Acciones</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">ID Orden</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Cliente</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Ref. Cotización</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Fecha</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Monto Total</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Pagado</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Pendiente</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Estado</th>
+                  <th className="text-left py-3 px-4 font-medium text-blue-800">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
+              <tbody className="bg-white/90">
                 {orders.map((order) => (
-                  <tr key={order.id} className="border-t border-gray-200 hover:bg-gray-50">
+                  <tr key={order.id} className="border-t border-blue-100 hover:bg-blue-50/50 transition-colors">
                     <td className="py-3 px-4">
                       {order.pending > 0 && (
                         <input 
                           type="checkbox" 
-                          className="rounded border-gray-300"
+                          className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
                           checked={selectedOrders.includes(order.id)}
                           onChange={() => toggleOrderSelection(order.id)}
                         />
                       )}
                     </td>
-                    <td className="py-3 px-4 font-medium text-blue-600">{order.id}</td>
+                    <td className="py-3 px-4 font-medium text-blue-700">{order.id}</td>
                     <td className="py-3 px-4">
                       <button
                         onClick={() => handleClientClick(order.client)}
-                        className="text-gray-900 hover:text-blue-600 transition-colors"
+                        className="text-blue-900 hover:text-blue-600 transition-colors font-medium"
                       >
                         {order.client}
                       </button>
                     </td>
-                    <td className="py-3 px-4 text-gray-600">{order.quoteRef}</td>
-                    <td className="py-3 px-4 text-gray-600">{order.date}</td>
-                    <td className="py-3 px-4 font-semibold text-gray-900">${order.amount.toLocaleString()}</td>
+                    <td className="py-3 px-4 text-blue-700">{order.quoteRef}</td>
+                    <td className="py-3 px-4 text-blue-700">{order.date}</td>
+                    <td className="py-3 px-4 font-semibold text-blue-900">${order.amount.toLocaleString()}</td>
                     <td className="py-3 px-4 text-green-600 font-medium">${order.paid.toLocaleString()}</td>
                     <td className="py-3 px-4 text-orange-600 font-medium">${order.pending.toLocaleString()}</td>
                     <td className="py-3 px-4">
                       <Badge 
                         variant="secondary"
                         className={
-                          order.status === 'Pagado' ? 'bg-green-100 text-green-700' :
-                          order.status === 'Facturado' ? 'bg-blue-100 text-blue-700' :
-                          'bg-orange-100 text-orange-700'
+                          order.status === 'Pagado' ? 'bg-green-100 text-green-700 border-green-200' :
+                          order.status === 'Facturado' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                          'bg-orange-100 text-orange-700 border-orange-200'
                         }
                       >
                         {order.status}
@@ -187,7 +188,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50 bg-white/80"
                               onClick={() => handleInvoiceClick(order)}
                             >
                               <FileText className="w-4 h-4" />
@@ -203,7 +204,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              className="border-green-300 text-green-600 hover:bg-green-50"
+                              className="border-green-300 text-green-600 hover:bg-green-50 bg-white/80"
                               onClick={() => handlePaymentLinkClick(order)}
                             >
                               <Link className="w-4 h-4" />
@@ -219,7 +220,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                             <TooltipTrigger asChild>
                               <Button 
                                 size="sm" 
-                                className="bg-blue-600 hover:bg-blue-700"
+                                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                               >
                                 <Bell className="w-4 h-4" />
                               </Button>
@@ -232,19 +233,19 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                         
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="border-gray-300 text-gray-600 hover:bg-gray-50">
+                            <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50 bg-white/80">
                               <Plus className="w-3 h-3" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
-                            <DropdownMenuItem className="hover:bg-gray-50">Ver Detalles</DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-gray-50">Editar Contacto</DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-gray-50">Descargar PDF</DropdownMenuItem>
+                          <DropdownMenuContent className="bg-white border border-blue-200 rounded-lg shadow-lg">
+                            <DropdownMenuItem className="hover:bg-blue-50 text-blue-700">Ver Detalles</DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-blue-50 text-blue-700">Editar Contacto</DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-blue-50 text-blue-700">Descargar PDF</DropdownMenuItem>
                             {!order.hasCFDI && (
-                              <DropdownMenuItem className="hover:bg-gray-50">Generar CFDI</DropdownMenuItem>
+                              <DropdownMenuItem className="hover:bg-blue-50 text-blue-700">Generar CFDI</DropdownMenuItem>
                             )}
                             {!order.paymentLink && order.pending > 0 && (
-                              <DropdownMenuItem className="hover:bg-gray-50">Crear Link de Pago</DropdownMenuItem>
+                              <DropdownMenuItem className="hover:bg-blue-50 text-blue-700">Crear Link de Pago</DropdownMenuItem>
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
