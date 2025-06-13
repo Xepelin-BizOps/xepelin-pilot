@@ -9,6 +9,7 @@ import { QuoteCreationForm } from '@/components/QuoteCreationForm';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
+import { QuoteConfirmationDialog } from '@/components/QuoteConfirmationDialog';
 import { Plus, FileText, Link, Send, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +24,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [showMessagePanel, setShowMessagePanel] = useState(false);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [editingQuote, setEditingQuote] = useState<any>(null);
@@ -99,19 +101,21 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   };
 
   const handleConfirmQuote = (quote: any) => {
+    setSelectedQuote(quote);
+    setShowConfirmationDialog(true);
+  };
+
+  const handleQuoteConfirmed = (updatedQuote: any) => {
     setQuotes(prevQuotes => 
       prevQuotes.map(q => 
-        q.id === quote.id 
-          ? { ...q, status: 'Confirmada' }
+        q.id === updatedQuote.id 
+          ? updatedQuote
           : q
       )
     );
     
-    console.log('Confirmando cotización:', quote.id);
-    toast({
-      title: "Cotización confirmada",
-      description: `La cotización ${quote.id} ha sido confirmada exitosamente`,
-    });
+    console.log('Cotización confirmada con todos los detalles:', updatedQuote);
+    setShowConfirmationDialog(false);
   };
 
   const handleDeleteQuote = (quote: any) => {
@@ -457,6 +461,16 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             clientName={selectedQuote.client}
             type="quote"
             items={selectedQuote.clientQuotes || [selectedQuote]}
+          />
+        )}
+
+        {/* Quote Confirmation Dialog */}
+        {showConfirmationDialog && selectedQuote && (
+          <QuoteConfirmationDialog
+            isOpen={showConfirmationDialog}
+            onClose={() => setShowConfirmationDialog(false)}
+            quote={selectedQuote}
+            onConfirm={handleQuoteConfirmed}
           />
         )}
       </div>
