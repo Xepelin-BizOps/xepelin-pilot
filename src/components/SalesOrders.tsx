@@ -8,7 +8,7 @@ import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
 import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
-import { MoreHorizontal, FileText, Link, Send } from 'lucide-react';
+import { MoreHorizontal, FileText, Link, Send, BarChart3 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -179,6 +179,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
     setSelectedOrders([]);
   };
 
+  const handleReportsClick = () => {
+    console.log('Navegando a reportes...');
+    // TODO: Implement navigation to reports section
+  };
+
   return (
     <TooltipProvider>
       <div className="space-y-6">
@@ -191,6 +196,14 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 Enviar Recordatorios
+              </Button>
+              <Button 
+                onClick={handleReportsClick}
+                variant="outline"
+                className="border-blue-400 text-blue-600 hover:bg-blue-50"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Reportes
               </Button>
               <Input 
                 placeholder="Buscar órdenes..." 
