@@ -102,17 +102,21 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                 placeholder="Buscar órdenes..." 
                 className="w-64 bg-white border-gray-400 rounded-lg focus:border-blue-500"
               />
-              <Button variant="outline" className="border-gray-400 text-gray-700 hover:bg-gray-100">
-                Filtros
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Bell className="w-4 h-4 mr-2" />
+                Enviar Recordatorios
               </Button>
-              {selectedOrders.length > 0 && (
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Bell className="w-4 h-4 mr-2" />
-                  Enviar Recordatorios ({selectedOrders.length})
-                </Button>
-              )}
             </div>
           </div>
+
+          {selectedOrders.length > 0 && (
+            <div className="mb-4">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Bell className="w-4 h-4 mr-2" />
+                Enviar Recordatorios ({selectedOrders.length})
+              </Button>
+            </div>
+          )}
 
           <div className="overflow-hidden border border-gray-300 rounded-lg">
             <table className="w-full">
