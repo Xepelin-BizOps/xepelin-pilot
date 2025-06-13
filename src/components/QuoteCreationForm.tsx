@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Search, Plus, FileText, UserPlus, Package, Mail, MessageSquare, Trash2, Download, Upload, ChevronDown } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuoteCreationFormProps {
   onClose: () => void;
@@ -23,9 +23,12 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
   const [showProductSearch, setShowProductSearch] = useState(false);
   const [showClientDialog, setShowClientDialog] = useState(false);
   const [showManualProduct, setShowManualProduct] = useState(false);
+  const [showExcelImport, setShowExcelImport] = useState(false);
   const [selectedClient, setSelectedClient] = useState('');
   const [quoteDate, setQuoteDate] = useState('');
   const [notes, setNotes] = useState('');
+  const [dragActive, setDragActive] = useState(false);
+  const { toast } = useToast();
 
   // Estados para el formulario manual de productos
   const [manualProduct, setManualProduct] = useState({
@@ -62,6 +65,73 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
     { sku: 'PROD-003', name: 'Teclado Mecánico RGB', price: 1200, unit: 'pcs' },
     { sku: 'PROD-004', name: 'Mouse Inalámbrico', price: 800, unit: 'pcs' }
   ];
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleExcelFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleExcelFile = (file: File) => {
+    // Verificar que sea un archivo Excel
+    const validTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.csv'
+    ];
+    
+    if (!validTypes.some(type => file.type === type || file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv'))) {
+      toast({
+        title: "Error",
+        description: "Por favor selecciona un archivo Excel válido (.xlsx, .xls, .csv)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Simular procesamiento del archivo Excel
+    toast({
+      title: "Procesando archivo",
+      description: `Importando productos desde ${file.name}...`
+    });
+
+    // Simular datos importados (en una implementación real aquí se procesaría el Excel)
+    setTimeout(() => {
+      const importedProducts = [
+        { id: Date.now() + 1, sku: 'IMP-001', name: 'Producto Importado 1', price: 2500, quantity: 1, unit: 'pcs' },
+        { id: Date.now() + 2, sku: 'IMP-002', name: 'Producto Importado 2', price: 3500, quantity: 1, unit: 'pcs' },
+        { id: Date.now() + 3, sku: 'IMP-003', name: 'Producto Importado 3', price: 1500, quantity: 1, unit: 'pcs' }
+      ];
+      
+      setProducts([...products, ...importedProducts]);
+      setShowExcelImport(false);
+      
+      toast({
+        title: "Importación exitosa",
+        description: `Se importaron ${importedProducts.length} productos correctamente`
+      });
+    }, 2000);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleExcelFile(e.target.files[0]);
+    }
+  };
 
   const addProduct = (product: any) => {
     setProducts([...products, { 
@@ -263,7 +333,10 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
                         <Download className="w-4 h-4 mr-2" />
                         Descargar Template Excel
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="hover:bg-gray-50 cursor-pointer">
+                      <DropdownMenuItem 
+                        className="hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setShowExcelImport(true)}
+                      >
                         <Upload className="w-4 h-4 mr-2" />
                         Importar Excel
                       </DropdownMenuItem>
@@ -271,6 +344,54 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
                   </DropdownMenu>
                 </div>
               </div>
+
+              {/* Excel Import Dialog */}
+              <Dialog open={showExcelImport} onOpenChange={setShowExcelImport}>
+                <DialogContent className="bg-white max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Importar Productos desde Excel</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div 
+                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                        dragActive 
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                    >
+                      <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                      <p className="text-gray-600 mb-2">
+                        Arrastra y suelta tu archivo Excel aquí
+                      </p>
+                      <p className="text-sm text-gray-500 mb-4">
+                        o haz clic para seleccionar
+                      </p>
+                      <input
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        id="excel-upload"
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={() => document.getElementById('excel-upload')?.click()}
+                        className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                      >
+                        Seleccionar Archivo
+                      </Button>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      <p>Formatos soportados: .xlsx, .xls, .csv</p>
+                      <p>Descarga el template para ver el formato requerido.</p>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               {/* Manual Product Dialog */}
               <Dialog open={showManualProduct} onOpenChange={setShowManualProduct}>
