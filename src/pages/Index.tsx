@@ -69,11 +69,15 @@ const Index = () => {
               onClientClick={setSelectedClient}
               showCreationForm={showQuoteCreation}
               onToggleCreation={setShowQuoteCreation}
+              onOpenReminderPanel={() => setShowReminderPanel(true)}
             />
           </TabsContent>
           
           <TabsContent value="orders" className="mt-6">
-            <SalesOrders onClientClick={setSelectedClient} />
+            <SalesOrders 
+              onClientClick={setSelectedClient}
+              onOpenReminderPanel={() => setShowReminderPanel(true)}
+            />
           </TabsContent>
         </Tabs>
       </div>
@@ -86,12 +90,10 @@ const Index = () => {
         />
       )}
 
-      {/* Mass Reminder Panel */}
       {showReminderPanel && (
         <MassReminderPanel onClose={() => setShowReminderPanel(false)} />
       )}
 
-      {/* Toast Notifications */}
       <Toaster />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,15 +7,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
-import { MoreHorizontal, FileText, Link, Bell } from 'lucide-react';
+import { MoreHorizontal, FileText, Link, Bell, Send } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
 interface SalesOrdersProps {
   onClientClick: (client: any) => void;
+  onOpenReminderPanel: () => void;
 }
 
-export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
+export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onOpenReminderPanel }) => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
@@ -136,38 +136,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
   };
 
   const handleMassReminders = () => {
-    console.log('Enviando recordatorios masivos para órdenes:', selectedOrders);
-    
-    // Agrupar órdenes por cliente
-    const ordersByClient = selectedOrders.reduce((acc, orderId) => {
-      const order = orders.find(o => o.id === orderId);
-      if (order && order.pending > 0) {
-        if (!acc[order.client]) {
-          acc[order.client] = [];
-        }
-        acc[order.client].push(order);
-      }
-      return acc;
-    }, {} as Record<string, any[]>);
+    onOpenReminderPanel();
+  };
 
-    const clientCount = Object.keys(ordersByClient).length;
-    let totalOrders = 0;
-    
-    // Contar total de órdenes y enviar recordatorios agrupados por cliente
-    Object.entries(ordersByClient).forEach(([client, clientOrders]) => {
-      totalOrders += clientOrders.length;
-      const totalPending = clientOrders.reduce((sum, order) => sum + order.pending, 0);
-      console.log(`Recordatorio agrupado para ${client}: ${clientOrders.length} órdenes, $${totalPending.toLocaleString()}`);
-    });
-
-    toast({
-      title: `Recordatorios Masivos Enviados`,
-      description: `Se enviaron ${clientCount} recordatorios agrupados por cliente, cubriendo ${totalOrders} órdenes pendientes.`,
-      duration: 5000,
-    });
-
-    // Limpiar selección
-    setSelectedOrders([]);
+  const handleFollowUp = () => {
+    onOpenReminderPanel();
   };
 
   return (
@@ -185,13 +158,20 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
           </div>
 
           {selectedOrders.length > 0 && (
-            <div className="mb-4">
+            <div className="mb-4 flex space-x-2">
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={handleMassReminders}
               >
                 <Bell className="w-4 h-4 mr-2" />
                 Enviar Recordatorios ({selectedOrders.length})
+              </Button>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleFollowUp}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Enviar Seguimiento ({selectedOrders.length})
               </Button>
             </div>
           )}
@@ -206,7 +186,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                       className="rounded border-gray-400"
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedOrders(orders.filter(o => o.pending > 0).map(o => o.id));
+                          setSelectedOrders(orders.map(o => o.id));
                         } else {
                           setSelectedOrders([]);
                         }
@@ -228,14 +208,12 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                 {orders.map((order) => (
                   <tr key={order.id} className="border-t border-gray-200 hover:bg-gray-50">
                     <td className="py-3 px-4">
-                      {order.pending > 0 && (
-                        <input 
-                          type="checkbox" 
-                          className="rounded border-gray-400"
-                          checked={selectedOrders.includes(order.id)}
-                          onChange={() => toggleOrderSelection(order.id)}
-                        />
-                      )}
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-400"
+                        checked={selectedOrders.includes(order.id)}
+                        onChange={() => toggleOrderSelection(order.id)}
+                      />
                     </td>
                     <td className="py-3 px-4 font-medium text-blue-600">{order.id}</td>
                     <td className="py-3 px-4">
