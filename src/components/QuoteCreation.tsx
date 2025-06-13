@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { QuoteCreationForm } from '@/components/QuoteCreationForm';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
-import { Plus, FileText, Link, Bell, MoreHorizontal } from 'lucide-react';
+import { Plus, FileText, Link, Send, MoreHorizontal } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -297,11 +297,11 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                               variant="outline" 
                               className="border-blue-300 text-blue-600 hover:bg-blue-50"
                             >
-                              <Bell className="w-4 h-4" />
+                              <Send className="w-4 h-4" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Recordatorio</p>
+                            <p>Enviar Mensaje</p>
                           </TooltipContent>
                         </Tooltip>
                         
