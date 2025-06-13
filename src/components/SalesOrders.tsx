@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
-import { Plus, FileText, Link, Bell } from 'lucide-react';
+import { MoreHorizontal, FileText, Link, Bell } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SalesOrdersProps {
@@ -195,21 +195,23 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                           </TooltipContent>
                         </Tooltip>
                         
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="border-blue-400 text-blue-600 hover:bg-blue-50"
-                              onClick={() => handlePaymentLinkClick(order)}
-                            >
-                              <Link className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Link de Pago</p>
-                          </TooltipContent>
-                        </Tooltip>
+                        {order.pending > 0 && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="border-blue-400 text-blue-600 hover:bg-blue-50"
+                                onClick={() => handlePaymentLinkClick(order)}
+                              >
+                                <Link className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Link de Pago</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
                         
                         {order.pending > 0 && (
                           <Tooltip>
@@ -230,7 +232,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick }) => {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button size="sm" variant="outline" className="border-gray-400 text-gray-600 hover:bg-gray-50">
-                              <Plus className="w-3 h-3" />
+                              <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg">
