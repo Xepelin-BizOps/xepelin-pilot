@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Download, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { CIFUploader } from '@/components/CIFUploader';
 
 interface InvoiceFormProps {
   isOpen: boolean;
@@ -34,6 +34,16 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   const [regimenFiscal, setRegimenFiscal] = useState('');
   const [invoiceGenerated, setInvoiceGenerated] = useState(false);
   const { toast } = useToast();
+
+  const handleCIFDataExtracted = (data: {
+    rfc?: string;
+    codigoPostal?: string;
+    regimenFiscal?: string;
+  }) => {
+    if (data.rfc) setRfcReceptor(data.rfc);
+    if (data.codigoPostal) setCodigoPostal(data.codigoPostal);
+    if (data.regimenFiscal) setRegimenFiscal(data.regimenFiscal);
+  };
 
   const handleGenerateInvoice = () => {
     console.log('Generando factura...', {
@@ -201,6 +211,9 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
                 </Select>
               </div>
             </div>
+
+            {/* CIF Uploader */}
+            <CIFUploader onDataExtracted={handleCIFDataExtracted} />
 
             {/* Botones */}
             <div className="flex justify-end space-x-2 pt-4">
