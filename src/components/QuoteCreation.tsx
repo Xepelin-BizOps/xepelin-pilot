@@ -37,9 +37,9 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       products: 3,
       isInvoiced: false,
       items: [
-        { name: 'Laptop HP ProBook', quantity: 2, price: 15000 },
-        { name: 'Mouse inalámbrico', quantity: 1, price: 500 },
-        { name: 'Teclado mecánico', quantity: 1, price: 1500 }
+        { id: 1, name: 'Laptop HP ProBook', quantity: 2, price: 15000, sku: 'PROD-HP-001' },
+        { id: 2, name: 'Mouse inalámbrico', quantity: 1, price: 500, sku: 'PROD-MS-001' },
+        { id: 3, name: 'Teclado mecánico', quantity: 1, price: 1500, sku: 'PROD-KB-001' }
       ]
     },
     {
@@ -51,9 +51,9 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       products: 5,
       isInvoiced: true,
       items: [
-        { name: 'Monitor 4K', quantity: 3, price: 12000 },
-        { name: 'Webcam HD', quantity: 2, price: 2800 },
-        { name: 'Auriculares profesionales', quantity: 2, price: 4000 }
+        { id: 4, name: 'Monitor 4K', quantity: 3, price: 12000, sku: 'PROD-MON-001' },
+        { id: 5, name: 'Webcam HD', quantity: 2, price: 2800, sku: 'PROD-WEB-001' },
+        { id: 6, name: 'Auriculares profesionales', quantity: 2, price: 4000, sku: 'PROD-AUD-001' }
       ]
     },
     {
@@ -65,8 +65,8 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       products: 2,
       isInvoiced: false,
       items: [
-        { name: 'Impresora láser', quantity: 1, price: 8900 },
-        { name: 'Papel de impresión', quantity: 10, price: 1000 }
+        { id: 7, name: 'Impresora láser', quantity: 1, price: 8900, sku: 'PROD-PRT-001' },
+        { id: 8, name: 'Papel de impresión', quantity: 10, price: 1000, sku: 'PROD-PPR-001' }
       ]
     }
   ]);
@@ -153,8 +153,40 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     });
   };
 
+  const handleSaveQuote = (quoteData: any) => {
+    if (editingQuote) {
+      // Actualizar cotización existente
+      setQuotes(prevQuotes => 
+        prevQuotes.map(q => 
+          q.id === editingQuote.id ? quoteData : q
+        )
+      );
+      setEditingQuote(null);
+      toast({
+        title: "Cotización actualizada",
+        description: `La cotización ${quoteData.id} ha sido actualizada exitosamente`,
+      });
+    } else {
+      // Agregar nueva cotización
+      setQuotes(prevQuotes => [...prevQuotes, quoteData]);
+      toast({
+        title: "Cotización creada",
+        description: `La cotización ${quoteData.id} ha sido creada exitosamente`,
+      });
+    }
+  };
+
   if (showCreationForm) {
-    return <QuoteCreationForm onClose={() => onToggleCreation(false)} editingQuote={editingQuote} />;
+    return (
+      <QuoteCreationForm 
+        onClose={() => {
+          onToggleCreation(false);
+          setEditingQuote(null);
+        }} 
+        editingQuote={editingQuote}
+        onSaveQuote={handleSaveQuote}
+      />
+    );
   }
 
   return (
@@ -397,7 +429,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
           />
         )}
 
-        {/* Invoice Form */}
         {showInvoiceForm && selectedQuote && (
           <InvoiceForm
             isOpen={showInvoiceForm}

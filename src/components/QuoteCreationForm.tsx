@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,14 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Search, Plus, FileText, UserPlus, Package, Mail, MessageSquare } from 'lucide-react';
+import { Search, Plus, FileText, UserPlus, Package, Mail, MessageSquare, Trash2 } from 'lucide-react';
 
 interface QuoteCreationFormProps {
   onClose: () => void;
   editingQuote?: any;
+  onSaveQuote?: (quoteData: any) => void;
 }
 
-export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, editingQuote }) => {
+export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, editingQuote, onSaveQuote }) => {
   const [products, setProducts] = useState([
     { id: 1, sku: 'PROD-001', name: 'Laptop Dell Inspiron 15', price: 15000, quantity: 2, unit: 'pcs' }
   ]);
@@ -22,6 +24,15 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
   const [showManualProduct, setShowManualProduct] = useState(false);
   const [selectedClient, setSelectedClient] = useState('');
   const [quoteDate, setQuoteDate] = useState('');
+  const [notes, setNotes] = useState('');
+
+  // Estados para el formulario manual de productos
+  const [manualProduct, setManualProduct] = useState({
+    name: '',
+    sku: '',
+    price: 0,
+    unit: 'pcs'
+  });
 
   useEffect(() => {
     if (editingQuote) {
@@ -29,6 +40,7 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
       setProducts(editingQuote.items || []);
       setSelectedClient(editingQuote.client || '');
       setQuoteDate(editingQuote.date || '');
+      setNotes(editingQuote.notes || '');
     } else {
       // Resetear para nueva cotización
       setProducts([
@@ -36,6 +48,7 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
       ]);
       setSelectedClient('');
       setQuoteDate(new Date().toISOString().split('T')[0]);
+      setNotes('');
     }
   }, [editingQuote]);
 
@@ -58,13 +71,56 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
     setShowProductSearch(false);
   };
 
-  const addManualProduct = (productData: any) => {
-    setProducts([...products, { 
-      id: Date.now(), 
-      ...productData,
-      quantity: 1 
-    }]);
-    setShowManualProduct(false);
+  const addManualProduct = () => {
+    if (manualProduct.name && manualProduct.sku && manualProduct.price > 0) {
+      setProducts([...products, { 
+        id: Date.now(), 
+        ...manualProduct,
+        quantity: 1 
+      }]);
+      setManualProduct({ name: '', sku: '', price: 0, unit: 'pcs' });
+      setShowManualProduct(false);
+    }
+  };
+
+  const removeProduct = (productId: number) => {
+    setProducts(products.filter(p => p.id !== productId));
+  };
+
+  const updateProductQuantity = (productId: number, quantity: number) => {
+    setProducts(products.map(p => 
+      p.id === productId ? { ...p, quantity: Math.max(0, quantity) } : p
+    ));
+  };
+
+  const updateProductPrice = (productId: number, price: number) => {
+    setProducts(products.map(p => 
+      p.id === productId ? { ...p, price: Math.max(0, price) } : p
+    ));
+  };
+
+  const handleSaveQuote = () => {
+    if (!selectedClient || products.length === 0) {
+      alert('Por favor selecciona un cliente y agrega al menos un producto');
+      return;
+    }
+
+    const quoteData = {
+      id: editingQuote?.id || `COT-2024-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+      client: selectedClient,
+      date: quoteDate,
+      amount: total,
+      status: editingQuote?.status || 'Pendiente',
+      products: products.length,
+      isInvoiced: editingQuote?.isInvoiced || false,
+      items: products,
+      notes: notes
+    };
+
+    if (onSaveQuote) {
+      onSaveQuote(quoteData);
+    }
+    onClose();
   };
 
   return (
@@ -174,20 +230,39 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
                       <div className="space-y-4">
                         <div>
                           <Label htmlFor="productName">Nombre del Producto</Label>
-                          <Input placeholder="Ej: Laptop HP Pavilion" className="bg-white border-gray-300 rounded-lg" />
+                          <Input 
+                            placeholder="Ej: Laptop HP Pavilion" 
+                            value={manualProduct.name}
+                            onChange={(e) => setManualProduct({ ...manualProduct, name: e.target.value })}
+                            className="bg-white border-gray-300 rounded-lg" 
+                          />
                         </div>
                         <div>
                           <Label htmlFor="productSku">SKU</Label>
-                          <Input placeholder="PROD-005" className="bg-white border-gray-300 rounded-lg" />
+                          <Input 
+                            placeholder="PROD-005" 
+                            value={manualProduct.sku}
+                            onChange={(e) => setManualProduct({ ...manualProduct, sku: e.target.value })}
+                            className="bg-white border-gray-300 rounded-lg" 
+                          />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <Label htmlFor="productPrice">Precio Unitario</Label>
-                            <Input type="number" placeholder="5000" className="bg-white border-gray-300 rounded-lg" />
+                            <Input 
+                              type="number" 
+                              placeholder="5000" 
+                              value={manualProduct.price || ''}
+                              onChange={(e) => setManualProduct({ ...manualProduct, price: Number(e.target.value) })}
+                              className="bg-white border-gray-300 rounded-lg" 
+                            />
                           </div>
                           <div>
                             <Label htmlFor="productUnit">Unidad</Label>
-                            <Select>
+                            <Select 
+                              value={manualProduct.unit} 
+                              onValueChange={(value) => setManualProduct({ ...manualProduct, unit: value })}
+                            >
                               <SelectTrigger className="bg-white border-gray-300 rounded-lg">
                                 <SelectValue placeholder="Seleccionar" />
                               </SelectTrigger>
@@ -202,14 +277,7 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
                         </div>
                         <Button 
                           className="w-full bg-blue-600 hover:bg-blue-700" 
-                          onClick={() => {
-                            addManualProduct({
-                              sku: 'PROD-005',
-                              name: 'Producto Manual',
-                              price: 5000,
-                              unit: 'pcs'
-                            });
-                          }}
+                          onClick={addManualProduct}
                         >
                           Agregar Producto
                         </Button>
@@ -264,6 +332,7 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
                       <th className="text-left py-3 px-4 font-medium text-gray-700">Cantidad</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-700">Precio Unit.</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-700">Total</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white">
@@ -279,18 +348,30 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
                           <Input 
                             type="number" 
                             value={product.quantity}
-                            onChange={(e) => {
-                              const newQuantity = parseInt(e.target.value) || 0;
-                              setProducts(products.map(p => 
-                                p.id === product.id ? { ...p, quantity: newQuantity } : p
-                              ));
-                            }}
+                            onChange={(e) => updateProductQuantity(product.id, parseInt(e.target.value) || 0)}
                             className="w-20 bg-white border-gray-300 rounded"
                           />
                         </td>
-                        <td className="py-3 px-4 text-gray-900">${product.price.toLocaleString()}</td>
+                        <td className="py-3 px-4">
+                          <Input 
+                            type="number" 
+                            value={product.price}
+                            onChange={(e) => updateProductPrice(product.id, parseFloat(e.target.value) || 0)}
+                            className="w-24 bg-white border-gray-300 rounded"
+                          />
+                        </td>
                         <td className="py-3 px-4 font-semibold text-gray-900">
                           ${(product.price * product.quantity).toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeProduct(product.id)}
+                            className="border-red-300 text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -326,12 +407,17 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
               <Label htmlFor="notes">Notas</Label>
               <Textarea 
                 placeholder="Condiciones comerciales, términos de pago..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 className="bg-white border-gray-300 rounded-lg"
               />
             </div>
 
             <div className="mt-6 space-y-2">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                onClick={handleSaveQuote}
+              >
                 {editingQuote ? 'Actualizar Cotización' : 'Crear Cotización'}
               </Button>
               <div className="grid grid-cols-2 gap-2">
