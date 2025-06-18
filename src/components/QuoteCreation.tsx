@@ -10,7 +10,7 @@ import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
 import { QuoteConfirmationDialog } from '@/components/QuoteConfirmationDialog';
-import { Plus, FileText, Link, Send, MoreHorizontal } from 'lucide-react';
+import { Plus, FileText, Link, Send, MoreHorizontal, Eye } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -261,14 +261,21 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
-                          onClick={() => handleViewDetails(quote)}
-                        >
-                          Ver
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              onClick={() => handleViewDetails(quote)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ver Detalles</p>
+                          </TooltipContent>
+                        </Tooltip>
                         
                         <Tooltip>
                           <TooltipTrigger asChild>
