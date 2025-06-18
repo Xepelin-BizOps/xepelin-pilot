@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +36,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       client: 'Tecnología Avanzada S.A.',
       date: '2024-06-10',
       amount: 32000,
-      status: 'Pendiente',
+      status: 'En Revisión',
       products: 3,
       isInvoiced: false,
       items: [
@@ -65,7 +64,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       client: 'Sistemas Corporativos',
       date: '2024-06-12', 
       amount: 18900,
-      status: 'En Revisión',
+      status: 'Rechazada',
       products: 2,
       isInvoiced: false,
       items: [
@@ -104,9 +103,9 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       client: 'Oficinas Modernas',
       date: '2024-06-13',
       amount: 22100,
-      status: 'Confirmada',
+      status: 'En Revisión',
       products: 6,
-      isInvoiced: true,
+      isInvoiced: false,
       items: [
         { id: 13, name: 'Proyector 4K', quantity: 1, price: 18000, sku: 'PROD-PRJ-001' },
         { id: 14, name: 'Pantalla de proyección', quantity: 1, price: 4100, sku: 'PROD-SCR-001' }
@@ -185,7 +184,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
       ...quote,
       id: `COT-2024-${String(quotes.length + 1).padStart(3, '0')}`,
       date: new Date().toISOString().split('T')[0],
-      status: 'Pendiente',
+      status: 'En Revisión',
       isInvoiced: false
     };
     
@@ -293,8 +292,14 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                     <td className="py-3 px-4 font-semibold text-gray-900">${quote.amount.toLocaleString()}</td>
                     <td className="py-3 px-4">
                       <Badge 
-                        variant={quote.status === 'Confirmada' ? 'default' : 'secondary'}
-                        className={quote.status === 'Confirmada' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}
+                        variant={quote.status === 'Confirmada' ? 'default' : quote.status === 'Rechazada' ? 'destructive' : 'secondary'}
+                        className={
+                          quote.status === 'Confirmada' 
+                            ? 'bg-green-100 text-green-700' 
+                            : quote.status === 'Rechazada'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }
                       >
                         {quote.status}
                       </Badge>
@@ -372,7 +377,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
-                            {quote.status === 'Pendiente' && (
+                            {quote.status === 'En Revisión' && (
                               <DropdownMenuItem 
                                 className="hover:bg-gray-50"
                                 onClick={() => handleConfirmQuote(quote)}
@@ -436,8 +441,14 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                   <div>
                     <label className="text-sm font-medium text-gray-700">Estado:</label>
                     <Badge 
-                      variant={selectedQuote.status === 'Confirmada' ? 'default' : 'secondary'}
-                      className={selectedQuote.status === 'Confirmada' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}
+                      variant={selectedQuote.status === 'Confirmada' ? 'default' : selectedQuote.status === 'Rechazada' ? 'destructive' : 'secondary'}
+                      className={
+                        selectedQuote.status === 'Confirmada' 
+                          ? 'bg-green-100 text-green-700' 
+                          : selectedQuote.status === 'Rechazada'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      }
                     >
                       {selectedQuote.status}
                     </Badge>
