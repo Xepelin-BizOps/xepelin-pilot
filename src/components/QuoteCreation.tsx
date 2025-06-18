@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -374,7 +375,14 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
           <Dialog open={showQuoteDetails} onOpenChange={setShowQuoteDetails}>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Detalles de Cotización - {selectedQuote.id}</DialogTitle>
+                <div className="flex items-center justify-between">
+                  <DialogTitle>Detalles de Cotización - {selectedQuote.id}</DialogTitle>
+                  <img 
+                    src="/lovable-uploads/7342f7cc-57b7-42f2-aea6-b1c823657abb.png" 
+                    alt="Radtek Logo" 
+                    className="h-12"
+                  />
+                </div>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
