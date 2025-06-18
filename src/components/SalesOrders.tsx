@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       client: 'Tecnología Avanzada S.A.',
       date: '2024-06-12',
       amount: 32000,
-      status: 'Pendiente Pago',
+      status: 'Pendiente',
       paymentLink: 'https://pay.xepelin.com/ord-002',
       hasCFDI: false,
       paid: 0,
@@ -71,7 +72,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       client: 'Tecnología Avanzada S.A.',
       date: '2024-06-13',
       amount: 15000,
-      status: 'Pendiente Pago',
+      status: 'Pendiente',
       paymentLink: 'https://pay.xepelin.com/ord-005',
       hasCFDI: false,
       paid: 0,
