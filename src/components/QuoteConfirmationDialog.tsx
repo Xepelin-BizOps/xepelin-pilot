@@ -4,474 +4,314 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, CreditCard, Banknote, Link, FileText, CheckCircle } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { CheckCircle2, CreditCard, Banknote, Smartphone, Building2 } from 'lucide-react';
 
 interface QuoteConfirmationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   quote: any;
-  onConfirm: (quote: any) => void;
 }
 
-export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = ({
-  isOpen,
-  onClose,
-  quote,
-  onConfirm
+export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = ({ 
+  isOpen, 
+  onClose, 
+  quote 
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [paymentData, setPaymentData] = useState({
-    paymentTerms: '30',
-    dueDate: undefined as Date | undefined,
-    partialPayment: false,
-    advancePercentage: 20,
-    paymentReceived: false,
-    paymentMethod: '',
-    bankAccount: '',
-    xepelinAccount: '',
-    paymentAmount: 0,
-    paymentDate: undefined as Date | undefined,
-    paymentNotes: '',
-    shouldInvoice: true,
-    isInvoiced: false
-  });
-  const [generatedPaymentLink, setGeneratedPaymentLink] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState('30');
+  const [paymentLinkGenerated, setPaymentLinkGenerated] = useState(false);
+  const [paymentRegistered, setPaymentRegistered] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [bankAccount, setBankAccount] = useState('');
+  const [xepelinAccount, setXepelinAccount] = useState('');
+  const [invoiceGenerated, setInvoiceGenerated] = useState(false);
   const { toast } = useToast();
 
-  const totalAmount = quote?.amount || 0;
-  const advanceAmount = (totalAmount * paymentData.advancePercentage) / 100;
-
-  const handleStepNext = () => {
-    if (currentStep < 4) {
+  const handleNextStep = () => {
+    if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleStepBack = () => {
+  const handlePreviousStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleGeneratePaymentLink = () => {
-    const amount = paymentData.partialPayment ? advanceAmount : totalAmount;
-    const mockLink = `https://pay.xepelin.com/${quote.id}?amount=${amount}`;
-    setGeneratedPaymentLink(mockLink);
-    
+    setPaymentLinkGenerated(true);
     toast({
-      title: "Enlace de pago generado",
-      description: "El enlace de pago ha sido creado exitosamente",
+      title: "Link de pago generado",
+      description: "El link de pago ha sido creado exitosamente",
     });
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(generatedPaymentLink);
+  const handleRegisterPayment = () => {
+    if (!paymentMethod) {
+      toast({
+        title: "Error",
+        description: "Por favor selecciona el método de pago",
+        variant: "destructive",
+      });
+      return;
+    }
+    setPaymentRegistered(true);
     toast({
-      title: "Enlace copiado",
-      description: "El enlace de pago ha sido copiado al portapapeles",
+      title: "Pago registrado",
+      description: "El pago ha sido registrado exitosamente",
     });
   };
 
-  const handleConfirmQuote = () => {
-    const updatedQuote = {
-      ...quote,
-      status: 'Confirmada',
-      paymentData,
-      generatedPaymentLink,
-      isInvoiced: paymentData.isInvoiced
-    };
-    
-    onConfirm(updatedQuote);
+  const handleGenerateInvoice = () => {
+    setInvoiceGenerated(true);
     toast({
-      title: "Cotización confirmada",
-      description: `La cotización ${quote.id} ha sido procesada exitosamente`,
+      title: "Factura generada",
+      description: "La factura ha sido creada exitosamente",
+    });
+    setTimeout(() => {
+      onClose();
+    }, 2000);
+  };
+
+  const handleFinish = () => {
+    toast({
+      title: "Proceso completado",
+      description: "La cotización ha sido confirmada exitosamente",
     });
     onClose();
   };
 
-  const renderStep1 = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Paso 1: Configurar Términos de Pago</h3>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label>Términos de pago</Label>
-          <Select value={paymentData.paymentTerms} onValueChange={(value) => 
-            setPaymentData(prev => ({ ...prev, paymentTerms: value }))
-          }>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">7 días</SelectItem>
-              <SelectItem value="15">15 días</SelectItem>
-              <SelectItem value="30">30 días</SelectItem>
-              <SelectItem value="60">60 días</SelectItem>
-              <SelectItem value="90">90 días</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label>Fecha límite de pago</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !paymentData.dueDate && "text-gray-500"
-                )}
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Definir Términos de Pago</h3>
+            <div className="space-y-3">
+              <Label htmlFor="paymentTerms">Plazo de pago (días)</Label>
+              <RadioGroup
+                value={paymentTerms}
+                onValueChange={setPaymentTerms}
+                className="flex flex-col space-y-2"
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {paymentData.dueDate ? format(paymentData.dueDate, "dd-MM-yyyy") : "Seleccionar fecha"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={paymentData.dueDate}
-                onSelect={(date) => setPaymentData(prev => ({ ...prev, dueDate: date }))}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Checkbox 
-          id="partial"
-          checked={paymentData.partialPayment}
-          onCheckedChange={(checked) => 
-            setPaymentData(prev => ({ ...prev, partialPayment: checked === true }))
-          }
-        />
-        <Label htmlFor="partial" className="text-blue-600 font-medium">
-          Solicitar pago parcial (anticipo)
-        </Label>
-      </div>
-
-      {paymentData.partialPayment && (
-        <div className="space-y-2">
-          <Label>Porcentaje del anticipo: {paymentData.advancePercentage}%</Label>
-          <input
-            type="range"
-            min="10"
-            max="100"
-            step="5"
-            value={paymentData.advancePercentage}
-            onChange={(e) => setPaymentData(prev => ({ ...prev, advancePercentage: parseInt(e.target.value) }))}
-            className="w-full"
-          />
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <p className="text-blue-600 font-medium">
-              Monto del anticipo: <span className="text-blue-700">${advanceAmount.toLocaleString()}</span>
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderStep2 = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Paso 2: Generar Link de Pago</h3>
-      
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <Label className="text-gray-600">Cliente:</Label>
-            <p className="font-semibold">{quote.client}</p>
-          </div>
-          <div>
-            <Label className="text-gray-600">Cotización:</Label>
-            <p className="font-semibold">{quote.id}</p>
-          </div>
-          <div>
-            <Label className="text-gray-600">Monto total:</Label>
-            <p className="font-semibold">${totalAmount.toLocaleString()}</p>
-          </div>
-          <div>
-            <Label className="text-gray-600">Monto a cobrar:</Label>
-            <p className="font-semibold text-blue-600">
-              ${(paymentData.partialPayment ? advanceAmount : totalAmount).toLocaleString()}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {!generatedPaymentLink ? (
-        <Button 
-          onClick={handleGeneratePaymentLink}
-          className="w-full bg-blue-600 hover:bg-blue-700"
-        >
-          <Link className="w-4 h-4 mr-2" />
-          Generar enlace de pago
-        </Button>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <Label className="text-green-700 font-medium">Enlace generado:</Label>
-            <div className="mt-2 p-2 bg-white border border-green-300 rounded text-sm font-mono break-all">
-              {generatedPaymentLink}
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="15" id="15" />
+                  <Label htmlFor="15">15 días</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="30" id="30" />
+                  <Label htmlFor="30">30 días</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="45" id="45" />
+                  <Label htmlFor="45">45 días</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="60" id="60" />
+                  <Label htmlFor="60">60 días</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="custom" id="custom" />
+                  <Label htmlFor="custom">Personalizado</Label>
+                </div>
+              </RadioGroup>
+              {paymentTerms === 'custom' && (
+                <Input
+                  placeholder="Días personalizados"
+                  type="number"
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
-          <Button onClick={handleCopyLink} variant="outline" className="w-full">
-            Copiar enlace
-          </Button>
-        </div>
-      )}
-    </div>
-  );
+        );
 
-  const renderStep3 = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Paso 3: Registrar Pago</h3>
-      
-      <div className="flex items-center space-x-2">
-        <Checkbox 
-          id="payment-received"
-          checked={paymentData.paymentReceived}
-          onCheckedChange={(checked) => 
-            setPaymentData(prev => ({ ...prev, paymentReceived: checked === true }))
-          }
-        />
-        <Label htmlFor="payment-received" className="font-medium">
-          El pago ya fue recibido
-        </Label>
-      </div>
-
-      {paymentData.paymentReceived && (
-        <div className="space-y-4 border border-gray-200 rounded-lg p-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Método de pago</Label>
-              <Select value={paymentData.paymentMethod} onValueChange={(value) => 
-                setPaymentData(prev => ({ ...prev, paymentMethod: value }))
-              }>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar método" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="transfer">
-                    <div className="flex items-center">
-                      <Banknote className="w-4 h-4 mr-2" />
-                      Transferencia bancaria
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="cash">
-                    <div className="flex items-center">
-                      <Banknote className="w-4 h-4 mr-2" />
-                      Efectivo
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="card">
-                    <div className="flex items-center">
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Tarjeta
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+      case 2:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Generar Link de Pago</h3>
+            <div className="space-y-3">
+              <p className="text-gray-600">
+                Genera un link de pago para facilitar el proceso de cobro al cliente.
+              </p>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p><strong>Cliente:</strong> {quote?.client}</p>
+                <p><strong>Monto:</strong> ${quote?.amount?.toLocaleString()}</p>
+                <p><strong>Plazo:</strong> {paymentTerms} días</p>
+              </div>
+              {!paymentLinkGenerated ? (
+                <Button onClick={handleGeneratePaymentLink} className="w-full">
+                  Generar Link de Pago
+                </Button>
+              ) : (
+                <div className="flex items-center space-x-2 text-green-600">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Link de pago generado exitosamente</span>
+                </div>
+              )}
             </div>
+          </div>
+        );
 
-            <div>
-              <Label>Monto recibido</Label>
-              <Input
-                type="number"
-                value={paymentData.paymentAmount}
-                onChange={(e) => setPaymentData(prev => ({ ...prev, paymentAmount: parseFloat(e.target.value) || 0 }))}
-                placeholder="0.00"
-              />
-            </div>
+      case 3:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Registrar Pago</h3>
+            <div className="space-y-3">
+              <div className="space-y-3">
+                <Label>¿El pago ya se realizó?</Label>
+                <RadioGroup
+                  value={paymentRegistered ? "yes" : "no"}
+                  onValueChange={(value) => setPaymentRegistered(value === "yes")}
+                  className="flex flex-col space-y-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="payment-yes" />
+                    <Label htmlFor="payment-yes">Sí, registrar pago</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="payment-no" />
+                    <Label htmlFor="payment-no">No, continuar sin registrar</Label>
+                  </div>
+                </RadioGroup>
+              </div>
 
-            <div>
-              <Label>Fecha de pago</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !paymentData.paymentDate && "text-gray-500"
-                    )}
+              {paymentRegistered && (
+                <div className="space-y-3 border-t pt-3">
+                  <Label>Método de pago</Label>
+                  <RadioGroup
+                    value={paymentMethod}
+                    onValueChange={setPaymentMethod}
+                    className="flex flex-col space-y-2"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {paymentData.paymentDate ? format(paymentData.paymentDate, "dd-MM-yyyy") : "Fecha de pago"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={paymentData.paymentDate}
-                    onSelect={(date) => setPaymentData(prev => ({ ...prev, paymentDate: date }))}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="transfer" id="transfer" />
+                      <Building2 className="w-4 h-4" />
+                      <Label htmlFor="transfer">Transferencia bancaria</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="cash" id="cash" />
+                      <Banknote className="w-4 h-4" />
+                      <Label htmlFor="cash">Efectivo</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="card" id="card" />
+                      <CreditCard className="w-4 h-4" />
+                      <Label htmlFor="card">Tarjeta</Label>
+                    </div>
+                  </RadioGroup>
 
-            {paymentData.paymentMethod === 'transfer' && (
-              <div>
-                <Label>Cuenta bancaria destino</Label>
-                <Select value={paymentData.bankAccount} onValueChange={(value) => 
-                  setPaymentData(prev => ({ ...prev, bankAccount: value }))
-                }>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar cuenta" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bbva-123">BBVA - ****123</SelectItem>
-                    <SelectItem value="santander-456">Santander - ****456</SelectItem>
-                    <SelectItem value="banamex-789">Banamex - ****789</SelectItem>
-                  </SelectContent>
-                </Select>
+                  {paymentMethod === 'transfer' && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="bankAccount">Cuenta bancaria del cliente</Label>
+                        <Input
+                          id="bankAccount"
+                          value={bankAccount}
+                          onChange={(e) => setBankAccount(e.target.value)}
+                          placeholder="Número de cuenta o banco"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="xepelinAccount">Cuenta Xepelin destino</Label>
+                        <Select value={xepelinAccount} onValueChange={setXepelinAccount}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar cuenta Xepelin" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="xepelin-main">Xepelin - Cuenta Principal</SelectItem>
+                            <SelectItem value="xepelin-secondary">Xepelin - Cuenta Secundaria</SelectItem>
+                            <SelectItem value="xepelin-usd">Xepelin - USD</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Facturación</h3>
+            <div className="space-y-3">
+              <Label>¿Se debe generar factura?</Label>
+              <RadioGroup
+                value={invoiceGenerated ? "generated" : "pending"}
+                onValueChange={(value) => setInvoiceGenerated(value === "generated")}
+                className="flex flex-col space-y-2"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="pending" id="invoice-pending" />
+                  <Label htmlFor="invoice-pending">Generar factura</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="generated" id="invoice-generated" />
+                  <Label htmlFor="invoice-generated">Ya está facturado</Label>
+                </div>
+              </RadioGroup>
+
+              {!invoiceGenerated && (
+                <Button onClick={handleGenerateInvoice} className="w-full mt-3">
+                  Generar Factura
+                </Button>
+              )}
+
+              {invoiceGenerated && (
+                <div className="flex items-center space-x-2 text-green-600 mt-3">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Factura completada</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Proceso Completado</h3>
+            <div className="space-y-3">
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center space-x-2 text-green-800 mb-2">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="font-semibold">Cotización confirmada exitosamente</span>
+                </div>
+                <div className="text-sm text-green-700 space-y-1">
+                  <p>• Términos de pago: {paymentTerms} días</p>
+                  <p>• Link de pago: {paymentLinkGenerated ? 'Generado' : 'No generado'}</p>
+                  <p>• Pago: {paymentRegistered ? `Registrado (${paymentMethod})` : 'Pendiente'}</p>
+                  <p>• Factura: {invoiceGenerated ? 'Completada' : 'Pendiente'}</p>
+                </div>
               </div>
-            )}
-          </div>
-
-          <div>
-            <Label>Cuenta Xepelin</Label>
-            <Select value={paymentData.xepelinAccount} onValueChange={(value) => 
-              setPaymentData(prev => ({ ...prev, xepelinAccount: value }))
-            }>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar cuenta Xepelin" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="xepelin-main">Xepelin Principal</SelectItem>
-                <SelectItem value="xepelin-secondary">Xepelin Secundaria</SelectItem>
-                <SelectItem value="xepelin-usd">Xepelin USD</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label>Notas del pago</Label>
-            <Textarea
-              value={paymentData.paymentNotes}
-              onChange={(e) => setPaymentData(prev => ({ ...prev, paymentNotes: e.target.value }))}
-              placeholder="Notas adicionales sobre el pago..."
-              className="min-h-20"
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderStep4 = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Paso 4: Facturación</h3>
-      
-      <div className="flex items-center space-x-2">
-        <Checkbox 
-          id="should-invoice"
-          checked={paymentData.shouldInvoice}
-          onCheckedChange={(checked) => 
-            setPaymentData(prev => ({ ...prev, shouldInvoice: checked === true }))
-          }
-        />
-        <Label htmlFor="should-invoice" className="font-medium">
-          Generar factura para esta cotización
-        </Label>
-      </div>
-
-      {paymentData.shouldInvoice && (
-        <div className="space-y-4 border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="is-invoiced"
-              checked={paymentData.isInvoiced}
-              onCheckedChange={(checked) => 
-                setPaymentData(prev => ({ ...prev, isInvoiced: checked === true }))
-              }
-            />
-            <Label htmlFor="is-invoiced">
-              Ya está facturado
-            </Label>
-          </div>
-
-          {!paymentData.isInvoiced && (
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="flex items-center text-blue-600">
-                <FileText className="w-5 h-5 mr-2" />
-                <span className="font-medium">Se generará la factura después de confirmar</span>
-              </div>
-              <p className="text-blue-600 text-sm mt-1">
-                La factura se creará automáticamente una vez confirmada la cotización
-              </p>
+              <Button onClick={handleFinish} className="w-full">
+                Finalizar Proceso
+              </Button>
             </div>
-          )}
+          </div>
+        );
 
-          {paymentData.isInvoiced && (
-            <div className="bg-green-50 p-4 rounded-lg">
-              <div className="flex items-center text-green-600">
-                <CheckCircle className="w-5 h-5 mr-2" />
-                <span className="font-medium">Factura ya generada</span>
-              </div>
-              <p className="text-green-600 text-sm mt-1">
-                Esta cotización ya cuenta con su factura correspondiente
-              </p>
-            </div>
-          )}
-        </div>
-      )}
+      default:
+        return null;
+    }
+  };
 
-      <div className="bg-gray-50 p-4 rounded-lg">
-        <h4 className="font-semibold text-gray-900 mb-3">Resumen de la confirmación:</h4>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>Cotización:</span>
-            <span className="font-medium">{quote.id}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Cliente:</span>
-            <span className="font-medium">{quote.client}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Monto total:</span>
-            <span className="font-medium">${totalAmount.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Términos de pago:</span>
-            <span className="font-medium">{paymentData.paymentTerms} días</span>
-          </div>
-          {paymentData.partialPayment && (
-            <div className="flex justify-between">
-              <span>Anticipo ({paymentData.advancePercentage}%):</span>
-              <span className="font-medium">${advanceAmount.toLocaleString()}</span>
-            </div>
-          )}
-          {paymentData.paymentReceived && (
-            <div className="flex justify-between">
-              <span>Pago recibido:</span>
-              <span className="font-medium text-green-600">${paymentData.paymentAmount.toLocaleString()}</span>
-            </div>
-          )}
-          {paymentData.shouldInvoice && (
-            <div className="flex justify-between">
-              <span>Facturación:</span>
-              <span className="font-medium">
-                {paymentData.isInvoiced ? 'Ya facturado' : 'Se facturará'}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  const steps = [
+    'Términos de Pago',
+    'Link de Pago', 
+    'Registrar Pago',
+    'Facturación',
+    'Completado'
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -482,54 +322,52 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
 
         <div className="space-y-6">
           {/* Progress Steps */}
-          <div className="flex items-center justify-between">
-            {[1, 2, 3, 4].map((step) => (
-              <div key={step} className="flex items-center">
-                <div className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                  step <= currentStep ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
-                )}>
-                  {step}
+          <div className="flex justify-between items-center">
+            {steps.map((step, index) => (
+              <div key={index} className="flex items-center">
+                <div 
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                    index + 1 <= currentStep 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {index + 1}
                 </div>
-                {step < 4 && (
-                  <div className={cn(
-                    "w-12 h-0.5 mx-2",
-                    step < currentStep ? "bg-blue-600" : "bg-gray-200"
-                  )} />
+                {index < steps.length - 1 && (
+                  <div 
+                    className={`w-12 h-0.5 mx-2 ${
+                      index + 1 < currentStep ? 'bg-blue-600' : 'bg-gray-200'
+                    }`}
+                  />
                 )}
               </div>
             ))}
           </div>
 
-          {/* Step Content */}
-          <div className="min-h-[400px]">
-            {currentStep === 1 && renderStep1()}
-            {currentStep === 2 && renderStep2()}
-            {currentStep === 3 && renderStep3()}
-            {currentStep === 4 && renderStep4()}
-          </div>
+          <Card className="p-6">
+            {renderStepContent()}
+          </Card>
 
           {/* Navigation Buttons */}
           <div className="flex justify-between">
             <Button 
               variant="outline" 
-              onClick={handleStepBack}
+              onClick={handlePreviousStep}
               disabled={currentStep === 1}
             >
               Anterior
             </Button>
             
-            {currentStep < 4 ? (
-              <Button onClick={handleStepNext}>
-                Siguiente
-              </Button>
-            ) : (
+            {currentStep < 5 && (
               <Button 
-                onClick={handleConfirmQuote}
-                className="bg-green-600 hover:bg-green-700"
+                onClick={handleNextStep}
+                disabled={
+                  (currentStep === 2 && !paymentLinkGenerated) ||
+                  (currentStep === 4 && !invoiceGenerated && !paymentRegistered)
+                }
               >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Confirmar Cotización
+                Siguiente
               </Button>
             )}
           </div>
