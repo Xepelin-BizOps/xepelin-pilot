@@ -72,6 +72,45 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
         { id: 7, name: 'Impresora láser', quantity: 1, price: 8900, sku: 'PROD-PRT-001' },
         { id: 8, name: 'Papel de impresión', quantity: 10, price: 1000, sku: 'PROD-PPR-001' }
       ]
+    },
+    {
+      id: 'COT-2024-004',
+      client: 'Comercial Hernández S.A.',
+      date: '2024-06-08',
+      amount: 28500,
+      status: 'Confirmada',
+      products: 4,
+      isInvoiced: true,
+      items: [
+        { id: 9, name: 'Servidor Dell PowerEdge', quantity: 1, price: 25000, sku: 'PROD-SRV-001' },
+        { id: 10, name: 'Cable de red Cat6', quantity: 10, price: 350, sku: 'PROD-CBL-001' }
+      ]
+    },
+    {
+      id: 'COT-2024-005',
+      client: 'Distribuidora Central',
+      date: '2024-06-09',
+      amount: 15800,
+      status: 'Confirmada',
+      products: 3,
+      isInvoiced: true,
+      items: [
+        { id: 11, name: 'Router empresarial', quantity: 2, price: 6500, sku: 'PROD-RTR-001' },
+        { id: 12, name: 'Switch 24 puertos', quantity: 1, price: 2800, sku: 'PROD-SWT-001' }
+      ]
+    },
+    {
+      id: 'COT-2024-006',
+      client: 'Oficinas Modernas',
+      date: '2024-06-13',
+      amount: 22100,
+      status: 'Confirmada',
+      products: 6,
+      isInvoiced: true,
+      items: [
+        { id: 13, name: 'Proyector 4K', quantity: 1, price: 18000, sku: 'PROD-PRJ-001' },
+        { id: 14, name: 'Pantalla de proyección', quantity: 1, price: 4100, sku: 'PROD-SCR-001' }
+      ]
     }
   ]);
 

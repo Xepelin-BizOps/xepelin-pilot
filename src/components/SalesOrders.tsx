@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,6 +67,19 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       isInvoiced: true
     },
     {
+      id: 'ORD-2024-004',
+      quoteRef: 'COT-2024-005',
+      client: 'Distribuidora Central',
+      date: '2024-06-09',
+      amount: 15800,
+      status: 'Pagado',
+      paymentLink: null,
+      hasCFDI: true,
+      paid: 15800,
+      pending: 0,
+      isInvoiced: true
+    },
+    {
       id: 'ORD-2024-005',
       quoteRef: 'COT-2024-006',
       client: 'Tecnología Avanzada S.A.',
@@ -77,6 +91,32 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       paid: 0,
       pending: 15000,
       isInvoiced: false
+    },
+    {
+      id: 'ORD-2024-006',
+      quoteRef: 'COT-2024-004',
+      client: 'Comercial Hernández S.A.',
+      date: '2024-06-08',
+      amount: 28500,
+      status: 'Pagado',
+      paymentLink: null,
+      hasCFDI: true,
+      paid: 28500,
+      pending: 0,
+      isInvoiced: true
+    },
+    {
+      id: 'ORD-2024-007',
+      quoteRef: 'COT-2024-006',
+      client: 'Oficinas Modernas',
+      date: '2024-06-13',
+      amount: 22100,
+      status: 'Pendiente',
+      paymentLink: 'https://pay.xepelin.com/ord-007',
+      hasCFDI: true,
+      paid: 12000,
+      pending: 10100,
+      isInvoiced: true
     }
   ];
 
