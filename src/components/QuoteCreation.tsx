@@ -227,6 +227,19 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     setShowMessagePanel(true);
   };
 
+  // Calculate tax breakdown
+  const calculateTaxBreakdown = (amount: number) => {
+    const IVA_RATE = 0.16; // 16% IVA
+    const subtotal = amount / (1 + IVA_RATE);
+    const iva = amount - subtotal;
+    
+    return {
+      subtotal: Math.round(subtotal),
+      iva: Math.round(iva),
+      total: amount
+    };
+  };
+
   if (showCreationForm) {
     return (
       <QuoteCreationForm 
@@ -262,6 +275,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
             </div>
           </div>
 
+          {/* Quotes List */}
           <div className="overflow-hidden border border-gray-200 rounded-lg">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -486,10 +500,25 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                 </div>
 
                 <div className="border-t pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold text-gray-900">Total:</span>
-                    <span className="text-xl font-bold text-blue-600">${selectedQuote.amount.toLocaleString()}</span>
-                  </div>
+                  {(() => {
+                    const { subtotal, iva, total } = calculateTaxBreakdown(selectedQuote.amount);
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700">Subtotal:</span>
+                          <span className="font-medium text-gray-900">${subtotal.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700">IVA (16%):</span>
+                          <span className="font-medium text-gray-900">${iva.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center border-t pt-2">
+                          <span className="text-lg font-semibold text-gray-900">Total:</span>
+                          <span className="text-xl font-bold text-blue-600">${total.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </DialogContent>
