@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,17 +30,22 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
   const [editingQuote, setEditingQuote] = useState<any>(null);
   const { toast } = useToast();
 
+  // Company address data
+  const companyAddress = {
+    name: 'Radtek S.A. de C.V.',
+    street: 'Av. Revolución 1245, Piso 8',
+    city: 'Ciudad de México',
+    state: 'CDMX',
+    zipCode: '03020',
+    country: 'México',
+    phone: '+52 55 1234 5678',
+    email: 'contacto@radtek.com.mx'
+  };
+
   const [quotes, setQuotes] = useState([
     {
       id: 'COT-2024-001',
       client: 'Tecnología Avanzada S.A.',
-      clientAddress: {
-        street: 'Av. Insurgentes Sur 1234',
-        city: 'Ciudad de México',
-        state: 'CDMX',
-        zipCode: '03100',
-        country: 'México'
-      },
       date: '2024-06-10',
       amount: 32000,
       status: 'En Revisión',
@@ -56,13 +60,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     {
       id: 'COT-2024-002', 
       client: 'Innovación Digital S.C.',
-      clientAddress: {
-        street: 'Blvd. Miguel de Cervantes Saavedra 169',
-        city: 'Guadalajara',
-        state: 'Jalisco',
-        zipCode: '44100',
-        country: 'México'
-      },
       date: '2024-06-11',
       amount: 45600,
       status: 'Confirmada',
@@ -77,13 +74,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     {
       id: 'COT-2024-003',
       client: 'Sistemas Corporativos',
-      clientAddress: {
-        street: 'Paseo de la Reforma 250',
-        city: 'Monterrey',
-        state: 'Nuevo León',
-        zipCode: '64000',
-        country: 'México'
-      },
       date: '2024-06-12', 
       amount: 18900,
       status: 'Rechazada',
@@ -97,13 +87,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     {
       id: 'COT-2024-004',
       client: 'Comercial Hernández S.A.',
-      clientAddress: {
-        street: 'Av. Universidad 1321',
-        city: 'Puebla',
-        state: 'Puebla',
-        zipCode: '72000',
-        country: 'México'
-      },
       date: '2024-06-08',
       amount: 28500,
       status: 'Confirmada',
@@ -117,13 +100,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     {
       id: 'COT-2024-005',
       client: 'Distribuidora Central',
-      clientAddress: {
-        street: 'Calzada de Tlalpan 4620',
-        city: 'Ciudad de México',
-        state: 'CDMX',
-        zipCode: '14000',
-        country: 'México'
-      },
       date: '2024-06-09',
       amount: 15800,
       status: 'Confirmada',
@@ -137,13 +113,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     {
       id: 'COT-2024-006',
       client: 'Oficinas Modernas',
-      clientAddress: {
-        street: 'Av. Chapultepec 188',
-        city: 'Tijuana',
-        state: 'Baja California',
-        zipCode: '22000',
-        country: 'México'
-      },
       date: '2024-06-13',
       amount: 22100,
       status: 'En Revisión',
@@ -516,19 +485,22 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                   </div>
                 </div>
 
-                {/* Client Address Section */}
-                {selectedQuote.clientAddress && (
-                  <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-2">Dirección del Cliente:</h4>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-gray-900">{selectedQuote.clientAddress.street}</p>
-                      <p className="text-gray-900">
-                        {selectedQuote.clientAddress.city}, {selectedQuote.clientAddress.state} {selectedQuote.clientAddress.zipCode}
-                      </p>
-                      <p className="text-gray-900">{selectedQuote.clientAddress.country}</p>
+                {/* Company Address Section */}
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-2">Datos de la Empresa:</h4>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-gray-900 font-medium">{companyAddress.name}</p>
+                    <p className="text-gray-900">{companyAddress.street}</p>
+                    <p className="text-gray-900">
+                      {companyAddress.city}, {companyAddress.state} {companyAddress.zipCode}
+                    </p>
+                    <p className="text-gray-900">{companyAddress.country}</p>
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                      <p className="text-gray-900">Tel: {companyAddress.phone}</p>
+                      <p className="text-gray-900">Email: {companyAddress.email}</p>
                     </div>
                   </div>
-                )}
+                </div>
                 
                 <div>
                   <h4 className="text-md font-semibold text-gray-900 mb-2">Productos:</h4>
