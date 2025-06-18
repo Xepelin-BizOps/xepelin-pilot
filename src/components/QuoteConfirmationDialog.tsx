@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -15,12 +14,14 @@ interface QuoteConfirmationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   quote: any;
+  onConfirm?: (updatedQuote: any) => void;
 }
 
 export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = ({ 
   isOpen, 
   onClose, 
-  quote 
+  quote,
+  onConfirm
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentTerms, setPaymentTerms] = useState('30');
@@ -80,6 +81,22 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
   };
 
   const handleFinish = () => {
+    const updatedQuote = {
+      ...quote,
+      status: 'Confirmada',
+      paymentTerms,
+      paymentLinkGenerated,
+      paymentRegistered,
+      paymentMethod,
+      bankAccount,
+      xepelinAccount,
+      invoiceGenerated
+    };
+
+    if (onConfirm) {
+      onConfirm(updatedQuote);
+    }
+
     toast({
       title: "Proceso completado",
       description: "La cotización ha sido confirmada exitosamente",
