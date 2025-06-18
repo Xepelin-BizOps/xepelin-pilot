@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,7 +32,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       client: 'Innovación Digital S.C.',
       date: '2024-06-11',
       amount: 45600,
-      status: 'Facturado',
+      status: 'Pendiente',
       paymentLink: 'https://pay.xepelin.com/ord-001',
       hasCFDI: true,
       paid: 25600,
@@ -285,7 +284,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                         variant="secondary"
                         className={
                           order.status === 'Pagado' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-                          order.status === 'Facturado' ? 'bg-gray-100 text-gray-800 border-gray-200' :
                           'bg-gray-200 text-gray-700 border-gray-300'
                         }
                       >
@@ -366,7 +364,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
           </div>
         </Card>
 
-        {/* Payment Link Form */}
         {showPaymentLinkForm && selectedOrder && (
           <PaymentLinkForm
             isOpen={showPaymentLinkForm}
@@ -377,7 +374,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
           />
         )}
 
-        {/* Invoice Form */}
         {showInvoiceForm && selectedOrder && (
           <InvoiceForm
             isOpen={showInvoiceForm}
@@ -389,7 +385,6 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
           />
         )}
 
-        {/* Message Selection Panel */}
         {showMessagePanel && selectedOrder && (
           <MessageSelectionPanel
             isOpen={showMessagePanel}

@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -47,7 +48,7 @@ export const InvoiceDropdown: React.FC<InvoiceDropdownProps> = ({ order, onInvoi
             variant="outline" 
             className="border-blue-400 text-blue-600 hover:bg-blue-50"
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-4 h-4 text-blue-600" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg">
@@ -95,3 +96,4 @@ export const InvoiceDropdown: React.FC<InvoiceDropdownProps> = ({ order, onInvoi
     </Button>
   );
 };
+
