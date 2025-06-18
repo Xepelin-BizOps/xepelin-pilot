@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -207,7 +208,14 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
         {/* Quotes List */}
         <Card className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Cotizaciones Recientes</h3>
+            <div className="flex items-center space-x-4">
+              <img 
+                src="/lovable-uploads/4fd0731a-078c-498c-bef3-c1b10b3d03da.png" 
+                alt="RADTEK Logo" 
+                className="h-10 w-auto"
+              />
+              <h3 className="text-lg font-semibold text-gray-900">Cotizaciones Recientes</h3>
+            </div>
             <div className="flex space-x-2">
               <Input 
                 placeholder="Buscar cotizaciones..." 
