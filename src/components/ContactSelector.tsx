@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,7 @@ export const ContactSelector: React.FC<ContactSelectorProps> = ({
     email: '',
     whatsapp: ''
   });
+  const [hasPreselected, setHasPreselected] = useState(false);
 
   // Mock contacts data - in real app this would come from API/database
   const [contacts, setContacts] = useState<Contact[]>([
@@ -72,6 +73,30 @@ export const ContactSelector: React.FC<ContactSelectorProps> = ({
       clientId: 'client-3'
     }
   ]);
+
+  // Auto-preselect client contacts when component mounts or clientName changes
+  useEffect(() => {
+    if (!hasPreselected && clientName !== 'Clientes Múltiples') {
+      const clientContacts = contacts.filter(contact => 
+        contact.clientId === 'client-1' // This would be dynamic based on actual client
+      );
+      
+      const availableClientContacts = clientContacts.filter(contact => 
+        isContactAvailable(contact)
+      );
+      
+      if (availableClientContacts.length > 0) {
+        const contactIds = availableClientContacts.map(contact => contact.id);
+        onContactsChange(contactIds);
+        setHasPreselected(true);
+      }
+    }
+  }, [clientName, selectedChannel, contacts, hasPreselected, onContactsChange]);
+
+  // Reset preselection flag when clientName or channel changes
+  useEffect(() => {
+    setHasPreselected(false);
+  }, [clientName, selectedChannel]);
 
   // Filter contacts based on client and search term
   const clientContacts = contacts.filter(contact => 
