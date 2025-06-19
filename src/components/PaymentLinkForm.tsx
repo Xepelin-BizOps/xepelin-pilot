@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,7 +45,7 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
     { value: '60', label: '60 días' },
     { value: '75', label: '75 días' },
     { value: '90', label: '90 días' },
-    { value: 'custom', label: 'Personalizado (calendario)' }
+    { value: 'custom', label: 'Personalizado' }
   ];
 
   const handlePartialPaymentChange = (checked: boolean | "indeterminate") => {
