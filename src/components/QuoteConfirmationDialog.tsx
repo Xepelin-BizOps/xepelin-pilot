@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle2, CreditCard, Banknote, Smartphone, Building2 } from 'lucide-react';
+import { CheckCircle2, CreditCard, Banknote, Smartphone, Building2, Copy, MessageSquare, Mail } from 'lucide-react';
+import { InvoiceForm } from '@/components/InvoiceForm';
 
 interface QuoteConfirmationDialogProps {
   isOpen: boolean;
@@ -27,53 +27,141 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentTerms, setPaymentTerms] = useState('30');
-  const [paymentLinkGenerated, setPaymentLinkGenerated] = useState(false);
-  const [paymentRegistered, setPaymentRegistered] = useState(false);
+  const [customTerms, setCustomTerms] = useState('');
+  const [alreadyPaid, setAlreadyPaid] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('');
   const [bankAccount, setBankAccount] = useState('');
   const [xepelinAccount, setXepelinAccount] = useState('');
-  const [alreadyPaid, setAlreadyPaid] = useState(false);
+  const [paymentLinkGenerated, setPaymentLinkGenerated] = useState(false);
+  const [paymentLink, setPaymentLink] = useState('');
+  const [partialPayment, setPartialPayment] = useState(false);
+  const [partialAmount, setPartialAmount] = useState('');
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [invoiceGenerated, setInvoiceGenerated] = useState(false);
   const { toast } = useToast();
 
   // Check if quote is already invoiced
   const isAlreadyInvoiced = quote?.isInvoiced || false;
 
+  const getStepTitle = (step: number) => {
+    const titles = [
+      'Términos de Pago',
+      'Registrar Pago',
+      'Link de Pago', 
+      'Verificar Factura',
+      'Facturación',
+      'Orden de Venta'
+    ];
+    return titles[step - 1];
+  };
+
   const getTotalSteps = () => {
-    return 3; // Always 3 steps: Payment Terms, Payment Link, Completion
+    let steps = 1; // Términos de Pago (siempre)
+    
+    if (alreadyPaid) {
+      steps += 1; // Registrar Pago
+    } else {
+      steps += 1; // Link de Pago
+    }
+    
+    steps += 1; // Verificar Factura (siempre)
+    
+    if (!isAlreadyInvoiced) {
+      steps += 1; // Facturación
+    }
+    
+    steps += 1; // Orden de Venta (siempre)
+    
+    return steps;
+  };
+
+  const getNextStepNumber = () => {
+    if (currentStep === 1) {
+      return alreadyPaid ? 2 : 3; // Si ya pagó -> Registrar Pago, si no -> Link de Pago
+    } else if (currentStep === 2 && alreadyPaid) {
+      return 4; // Después de Registrar Pago -> Verificar Factura
+    } else if (currentStep === 3 && !alreadyPaid) {
+      return 4; // Después de Link de Pago -> Verificar Factura
+    } else if (currentStep === 4) {
+      return isAlreadyInvoiced ? 6 : 5; // Si ya facturado -> Orden de Venta, si no -> Facturación
+    } else if (currentStep === 5) {
+      return 6; // Después de Facturación -> Orden de Venta
+    }
+    return currentStep + 1;
   };
 
   const handleNextStep = () => {
-    const totalSteps = getTotalSteps();
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
+    const nextStep = getNextStepNumber();
+    setCurrentStep(nextStep);
   };
 
   const handlePreviousStep = () => {
-    if (currentStep > 1) {
+    if (currentStep === 2) {
+      setCurrentStep(1);
+    } else if (currentStep === 3) {
+      setCurrentStep(1);
+    } else if (currentStep === 4) {
+      setCurrentStep(alreadyPaid ? 2 : 3);
+    } else if (currentStep === 5) {
+      setCurrentStep(4);
+    } else if (currentStep === 6) {
+      setCurrentStep(isAlreadyInvoiced ? 4 : 5);
+    } else {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const handleGeneratePaymentLink = () => {
+    const amount = partialPayment ? parseFloat(partialAmount) : quote?.amount;
+    const link = `https://pay.xepelin.com/quote-${quote?.id}-${Date.now()}`;
+    setPaymentLink(link);
     setPaymentLinkGenerated(true);
     toast({
       title: "Link de pago generado",
-      description: "El link de pago ha sido creado exitosamente",
+      description: `Link creado para ${partialPayment ? 'pago parcial de' : ''} $${amount?.toLocaleString()}`,
     });
   };
 
-  const handleFinish = () => {
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(paymentLink);
+    toast({
+      title: "Link copiado",
+      description: "El link de pago ha sido copiado al portapapeles",
+    });
+  };
+
+  const handleSendWhatsApp = () => {
+    const message = `Hola, te comparto el link de pago para tu cotización: ${paymentLink}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleSendEmail = () => {
+    const subject = `Link de pago - Cotización ${quote?.id}`;
+    const body = `Estimado cliente,\n\nTe comparto el link de pago para tu cotización:\n${paymentLink}\n\nSaludos.`;
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoUrl);
+  };
+
+  const handleInvoiceComplete = () => {
+    setInvoiceGenerated(true);
+    setShowInvoiceForm(false);
+    handleNextStep();
+  };
+
+  const handleCreateSalesOrder = () => {
     const updatedQuote = {
       ...quote,
       status: 'Confirmada',
-      paymentTerms,
+      paymentTerms: paymentTerms === 'custom' ? customTerms : paymentTerms,
       paymentLinkGenerated,
-      paymentRegistered: alreadyPaid || paymentRegistered,
+      paymentRegistered: alreadyPaid,
       paymentMethod,
       bankAccount,
       xepelinAccount,
-      alreadyPaid
+      alreadyPaid,
+      invoiceGenerated: isAlreadyInvoiced || invoiceGenerated,
+      salesOrderCreated: true
     };
 
     if (onConfirm) {
@@ -82,24 +170,37 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
 
     toast({
       title: "Proceso completado",
-      description: "La cotización ha sido confirmada exitosamente",
+      description: "Cotización confirmada y Orden de Venta creada exitosamente",
     });
     onClose();
   };
 
+  const canProceedFromStep = (step: number) => {
+    switch (step) {
+      case 1:
+        return paymentTerms && (paymentTerms !== 'custom' || customTerms);
+      case 2:
+        return alreadyPaid && paymentMethod && (paymentMethod !== 'transfer' || (bankAccount && xepelinAccount));
+      case 3:
+        return !alreadyPaid && paymentLinkGenerated;
+      case 4:
+        return true; // Verificar factura no requiere acción
+      case 5:
+        return invoiceGenerated;
+      default:
+        return true;
+    }
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
-      case 1:
+      case 1: // Términos de Pago
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Definir Términos de Pago</h3>
+            <h3 className="text-lg font-semibold">Paso 1: Definir Términos de Pago</h3>
             <div className="space-y-3">
               <Label htmlFor="paymentTerms">Plazo de pago (días)</Label>
-              <RadioGroup
-                value={paymentTerms}
-                onValueChange={setPaymentTerms}
-                className="flex flex-col space-y-2"
-              >
+              <RadioGroup value={paymentTerms} onValueChange={setPaymentTerms}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="15" id="15" />
                   <Label htmlFor="15">15 días</Label>
@@ -125,7 +226,8 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 <Input
                   placeholder="Días personalizados"
                   type="number"
-                  className="mt-2"
+                  value={customTerms}
+                  onChange={(e) => setCustomTerms(e.target.value)}
                 />
               )}
             </div>
@@ -136,19 +238,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
               <Label>Estado del pago</Label>
               <RadioGroup
                 value={alreadyPaid ? "paid" : "pending"}
-                onValueChange={(value) => {
-                  const isPaid = value === "paid";
-                  setAlreadyPaid(isPaid);
-                  if (isPaid) {
-                    setPaymentRegistered(true);
-                  } else {
-                    setPaymentRegistered(false);
-                    setPaymentMethod('');
-                    setBankAccount('');
-                    setXepelinAccount('');
-                  }
-                }}
-                className="flex flex-col space-y-2"
+                onValueChange={(value) => setAlreadyPaid(value === "paid")}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="pending" id="payment-pending" />
@@ -156,142 +246,220 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="paid" id="payment-paid" />
-                  <Label htmlFor="payment-paid">Ya se pagó - Registrar pago</Label>
+                  <Label htmlFor="payment-paid">Ya se pagó</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+        );
+
+      case 2: // Registrar Pago
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Paso 2: Registrar el Pago</h3>
+            <div className="space-y-3">
+              <Label>Método de pago utilizado</Label>
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="transfer" id="transfer" />
+                  <Building2 className="w-4 h-4" />
+                  <Label htmlFor="transfer">Transferencia bancaria</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="cash" id="cash" />
+                  <Banknote className="w-4 h-4" />
+                  <Label htmlFor="cash">Efectivo</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="card" id="card" />
+                  <CreditCard className="w-4 h-4" />
+                  <Label htmlFor="card">Tarjeta</Label>
                 </div>
               </RadioGroup>
 
-              {alreadyPaid && (
-                <div className="space-y-3 border-t pt-3">
-                  <Label>Método de pago</Label>
-                  <RadioGroup
-                    value={paymentMethod}
-                    onValueChange={setPaymentMethod}
-                    className="flex flex-col space-y-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="transfer" id="transfer-step1" />
-                      <Building2 className="w-4 h-4" />
-                      <Label htmlFor="transfer-step1">Transferencia bancaria</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="cash" id="cash-step1" />
-                      <Banknote className="w-4 h-4" />
-                      <Label htmlFor="cash-step1">Efectivo</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="card" id="card-step1" />
-                      <CreditCard className="w-4 h-4" />
-                      <Label htmlFor="card-step1">Tarjeta</Label>
-                    </div>
-                  </RadioGroup>
-
-                  {paymentMethod === 'transfer' && (
-                    <div className="space-y-3">
-                      <div>
-                        <Label htmlFor="bankAccountStep1">Cuenta bancaria del cliente</Label>
-                        <Input
-                          id="bankAccountStep1"
-                          value={bankAccount}
-                          onChange={(e) => setBankAccount(e.target.value)}
-                          placeholder="Número de cuenta o banco"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="xepelinAccountStep1">Cuenta Xepelin destino</Label>
-                        <Select value={xepelinAccount} onValueChange={setXepelinAccount}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar cuenta Xepelin" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="xepelin-main">Xepelin - Cuenta Principal</SelectItem>
-                            <SelectItem value="xepelin-secondary">Xepelin - Cuenta Secundaria</SelectItem>
-                            <SelectItem value="xepelin-usd">Xepelin - USD</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {isAlreadyInvoiced && (
-                <>
-                  <Separator />
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <div className="flex items-center space-x-2 text-green-800">
-                      <CheckCircle2 className="w-5 h-5" />
-                      <span className="font-semibold">Ya está facturado</span>
-                    </div>
-                    <p className="text-sm text-green-700 mt-1">
-                      Esta cotización ya cuenta con factura emitida.
-                    </p>
+              {paymentMethod === 'transfer' && (
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="bankAccount">Cuenta bancaria del cliente</Label>
+                    <Input
+                      id="bankAccount"
+                      value={bankAccount}
+                      onChange={(e) => setBankAccount(e.target.value)}
+                      placeholder="Número de cuenta o banco"
+                    />
                   </div>
-                </>
+                  <div>
+                    <Label htmlFor="xepelinAccount">Cuenta Xepelin destino</Label>
+                    <Select value={xepelinAccount} onValueChange={setXepelinAccount}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar cuenta Xepelin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="xepelin-main">Xepelin - Cuenta Principal</SelectItem>
+                        <SelectItem value="xepelin-secondary">Xepelin - Cuenta Secundaria</SelectItem>
+                        <SelectItem value="xepelin-usd">Xepelin - USD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         );
 
-      case 2:
+      case 3: // Generar Link de Pago
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Generar Link de Pago</h3>
+            <h3 className="text-lg font-semibold">Paso 3: Generar Link de Pago</h3>
+            
             <div className="space-y-3">
-              {alreadyPaid ? (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p><strong>Cliente:</strong> {quote?.client}</p>
+                <p><strong>Monto total:</strong> ${quote?.amount?.toLocaleString()}</p>
+                <p><strong>Plazo:</strong> {paymentTerms === 'custom' ? customTerms : paymentTerms} días</p>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Tipo de pago</Label>
+                <RadioGroup
+                  value={partialPayment ? "partial" : "full"}
+                  onValueChange={(value) => setPartialPayment(value === "partial")}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="full" id="full-payment" />
+                    <Label htmlFor="full-payment">Pago completo</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="partial" id="partial-payment" />
+                    <Label htmlFor="partial-payment">Pago parcial</Label>
+                  </div>
+                </RadioGroup>
+
+                {partialPayment && (
+                  <div>
+                    <Label htmlFor="partialAmount">Monto del pago parcial</Label>
+                    <Input
+                      id="partialAmount"
+                      type="number"
+                      value={partialAmount}
+                      onChange={(e) => setPartialAmount(e.target.value)}
+                      placeholder="Ingresa el monto"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {!paymentLinkGenerated ? (
+                <Button onClick={handleGeneratePaymentLink} className="w-full">
+                  Generar Link de Pago
+                </Button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2 text-green-600">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Link de pago generado exitosamente</span>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-3 rounded-lg break-all text-sm">
+                    {paymentLink}
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <Button onClick={handleCopyLink} variant="outline" size="sm">
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copiar
+                    </Button>
+                    <Button onClick={handleSendWhatsApp} variant="outline" size="sm">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      WhatsApp
+                    </Button>
+                    <Button onClick={handleSendEmail} variant="outline" size="sm">
+                      <Mail className="w-4 h-4 mr-2" />
+                      Email
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 4: // Verificar Estatus de Factura
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Paso 4: Verificar Estatus de Factura</h3>
+            <div className="space-y-3">
+              {isAlreadyInvoiced ? (
                 <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                   <div className="flex items-center space-x-2 text-green-800">
                     <CheckCircle2 className="w-5 h-5" />
-                    <span className="font-semibold">Pago ya registrado</span>
+                    <span className="font-semibold">Factura ya emitida</span>
                   </div>
                   <p className="text-sm text-green-700 mt-1">
-                    Se omite la generación del link de pago porque ya se registró el pago.
+                    Esta cotización ya cuenta con factura emitida. Se procederá directamente a crear la Orden de Venta.
                   </p>
                 </div>
               ) : (
-                <>
-                  <p className="text-gray-600">
-                    Genera un link de pago para facilitar el proceso de cobro al cliente.
-                  </p>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p><strong>Cliente:</strong> {quote?.client}</p>
-                    <p><strong>Monto:</strong> ${quote?.amount?.toLocaleString()}</p>
-                    <p><strong>Plazo:</strong> {paymentTerms} días</p>
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                  <div className="flex items-center space-x-2 text-yellow-800">
+                    <span className="font-semibold">Factura pendiente</span>
                   </div>
-                  {!paymentLinkGenerated ? (
-                    <Button onClick={handleGeneratePaymentLink} className="w-full">
-                      Generar Link de Pago
-                    </Button>
-                  ) : (
-                    <div className="flex items-center space-x-2 text-green-600">
-                      <CheckCircle2 className="w-5 h-5" />
-                      <span>Link de pago generado exitosamente</span>
-                    </div>
-                  )}
-                </>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Esta cotización aún no ha sido facturada. Se procederá a generar la factura.
+                  </p>
+                </div>
               )}
             </div>
           </div>
         );
 
-      case 3:
+      case 5: // Facturación
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Proceso Completado</h3>
+            <h3 className="text-lg font-semibold">Paso 5: Facturación</h3>
+            <div className="space-y-3">
+              <p className="text-gray-600">
+                Se requiere generar la factura para esta cotización antes de crear la Orden de Venta.
+              </p>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p><strong>Cliente:</strong> {quote?.client}</p>
+                <p><strong>Monto:</strong> ${quote?.amount?.toLocaleString()}</p>
+                <p><strong>Cotización:</strong> {quote?.id}</p>
+              </div>
+              
+              {!invoiceGenerated ? (
+                <Button onClick={() => setShowInvoiceForm(true)} className="w-full">
+                  Generar Factura
+                </Button>
+              ) : (
+                <div className="flex items-center space-x-2 text-green-600">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Factura generada exitosamente</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 6: // Crear Orden de Venta
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Paso 6: Crear Orden de Venta</h3>
             <div className="space-y-3">
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-2 text-green-800 mb-2">
                   <CheckCircle2 className="w-5 h-5" />
-                  <span className="font-semibold">Cotización confirmada exitosamente</span>
+                  <span className="font-semibold">Proceso completado</span>
                 </div>
                 <div className="text-sm text-green-700 space-y-1">
-                  <p>• Términos de pago: {paymentTerms} días</p>
-                  <p>• Link de pago: {alreadyPaid ? 'No requerido (ya pagado)' : paymentLinkGenerated ? 'Generado' : 'No generado'}</p>
-                  <p>• Pago: {alreadyPaid || paymentRegistered ? `Registrado (${paymentMethod})` : 'Pendiente'}</p>
-                  <p>• Factura: {isAlreadyInvoiced ? 'Ya facturado' : 'Pendiente de facturar'}</p>
+                  <p>• Términos de pago: {paymentTerms === 'custom' ? customTerms : paymentTerms} días</p>
+                  <p>• Pago: {alreadyPaid ? `Registrado (${paymentMethod})` : paymentLinkGenerated ? 'Link generado' : 'Pendiente'}</p>
+                  <p>• Factura: {isAlreadyInvoiced || invoiceGenerated ? 'Generada' : 'Pendiente'}</p>
+                  <p>• Orden de Venta: Lista para crear</p>
                 </div>
               </div>
-              <Button onClick={handleFinish} className="w-full">
-                Finalizar Proceso
+              <Button onClick={handleCreateSalesOrder} className="w-full">
+                Crear Orden de Venta y Finalizar
               </Button>
             </div>
           </div>
@@ -302,69 +470,67 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     }
   };
 
-  const steps = ['Términos de Pago', 'Link de Pago', 'Completado'];
-
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Confirmar Cotización - {quote?.id}</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Confirmar Cotización - {quote?.id}</DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Progress Steps */}
-          <div className="flex justify-between items-center">
-            {steps.map((step, index) => (
-              <div key={index} className="flex items-center">
-                <div 
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    index + 1 <= currentStep
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-200 text-gray-600'
-                  }`}
-                >
-                  {index + 1}
-                </div>
-                {index < steps.length - 1 && (
-                  <div 
-                    className={`w-12 h-0.5 mx-2 ${
-                      index + 1 < currentStep ? 'bg-blue-600' : 'bg-gray-200'
-                    }`}
-                  />
-                )}
+          <div className="space-y-6">
+            {/* Progress Steps */}
+            <div className="text-center">
+              <div className="text-sm text-gray-600 mb-2">
+                Paso {currentStep} de {getTotalSteps()}: {getStepTitle(currentStep)}
               </div>
-            ))}
-          </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${(currentStep / getTotalSteps()) * 100}%` }}
+                />
+              </div>
+            </div>
 
-          <Card className="p-6">
-            {renderStepContent()}
-          </Card>
+            <Card className="p-6">
+              {renderStepContent()}
+            </Card>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between">
-            <Button 
-              variant="outline" 
-              onClick={handlePreviousStep}
-              disabled={currentStep === 1}
-            >
-              Anterior
-            </Button>
-            
-            {currentStep < getTotalSteps() && (
+            {/* Navigation Buttons */}
+            <div className="flex justify-between">
               <Button 
-                onClick={handleNextStep}
-                disabled={
-                  (currentStep === 1 && alreadyPaid && !paymentMethod) ||
-                  (currentStep === 2 && !alreadyPaid && !paymentLinkGenerated)
-                }
+                variant="outline" 
+                onClick={handlePreviousStep}
+                disabled={currentStep === 1}
               >
-                Siguiente
+                Anterior
               </Button>
-            )}
+              
+              {currentStep < getTotalSteps() && (
+                <Button 
+                  onClick={handleNextStep}
+                  disabled={!canProceedFromStep(currentStep)}
+                >
+                  Siguiente
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invoice Form Modal */}
+      {showInvoiceForm && quote && (
+        <InvoiceForm
+          isOpen={showInvoiceForm}
+          onClose={() => setShowInvoiceForm(false)}
+          orderRef={quote.id}
+          totalAmount={quote.amount}
+          clientName={quote.client}
+          orderDate={quote.date}
+          onComplete={handleInvoiceComplete}
+        />
+      )}
+    </>
   );
 };
-
