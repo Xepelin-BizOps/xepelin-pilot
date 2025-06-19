@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -34,9 +35,12 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
   const [alreadyPaid, setAlreadyPaid] = useState(false);
   const { toast } = useToast();
 
+  // Check if quote is already invoiced
+  const isAlreadyInvoiced = quote?.isInvoiced || false;
+
   const getTotalSteps = () => {
-    if (alreadyPaid && invoiceGenerated) return 3; // Steps 1, 2, and final
-    if (alreadyPaid || invoiceGenerated) return 4; // Skip one step
+    if (alreadyPaid && isAlreadyInvoiced) return 3; // Steps 1, 2, and final
+    if (alreadyPaid || isAlreadyInvoiced) return 4; // Skip one step
     return 5; // All steps
   };
 
@@ -56,7 +60,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       }
       
       // Skip step 4 if already invoiced
-      if (invoiceGenerated && nextStep === 4) {
+      if (isAlreadyInvoiced && nextStep === 4) {
         nextStep = 5;
       }
       
@@ -69,7 +73,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       let prevStep = currentStep - 1;
       
       // Skip step 4 if already invoiced (going backwards)
-      if (invoiceGenerated && prevStep === 4) {
+      if (isAlreadyInvoiced && prevStep === 4) {
         prevStep = 3;
       }
       
@@ -111,7 +115,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       paymentMethod,
       bankAccount,
       xepelinAccount,
-      invoiceGenerated,
+      invoiceGenerated: isAlreadyInvoiced || invoiceGenerated,
       alreadyPaid
     };
 
@@ -253,25 +257,20 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 </div>
               )}
 
-              <Separator />
-
-              <div className="space-y-3">
-                <Label>Estado de facturación</Label>
-                <RadioGroup
-                  value={invoiceGenerated ? "invoiced" : "pending"}
-                  onValueChange={(value) => setInvoiceGenerated(value === "invoiced")}
-                  className="flex flex-col space-y-2"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="pending" id="invoice-pending-step1" />
-                    <Label htmlFor="invoice-pending-step1">Pendiente de facturar</Label>
+              {isAlreadyInvoiced && (
+                <>
+                  <Separator />
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center space-x-2 text-green-800">
+                      <CheckCircle2 className="w-5 h-5" />
+                      <span className="font-semibold">Ya está facturado</span>
+                    </div>
+                    <p className="text-sm text-green-700 mt-1">
+                      Esta cotización ya cuenta con factura emitida.
+                    </p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="invoiced" id="invoice-invoiced-step1" />
-                    <Label htmlFor="invoice-invoiced-step1">Ya está facturado</Label>
-                  </div>
-                </RadioGroup>
-              </div>
+                </>
+              )}
             </div>
           </div>
         );
@@ -318,7 +317,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
         );
 
       case 4:
-        if (invoiceGenerated) {
+        if (isAlreadyInvoiced) {
           // Skip to final step if already invoiced
           return renderStepContent.call(this, { currentStep: 5 });
         }
@@ -372,7 +371,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                   <p>• Términos de pago: {paymentTerms} días</p>
                   <p>• Link de pago: {alreadyPaid ? 'No requerido (ya pagado)' : paymentLinkGenerated ? 'Generado' : 'No generado'}</p>
                   <p>• Pago: {alreadyPaid || paymentRegistered ? `Registrado (${paymentMethod})` : 'Pendiente'}</p>
-                  <p>• Factura: {invoiceGenerated ? 'Completada' : 'Pendiente'}</p>
+                  <p>• Factura: {isAlreadyInvoiced || invoiceGenerated ? 'Completada' : 'Pendiente'}</p>
                 </div>
               </div>
               <Button onClick={handleFinish} className="w-full">
@@ -392,12 +391,12 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     
     if (!alreadyPaid) {
       // Only add invoice step if not already invoiced
-      if (!invoiceGenerated) {
+      if (!isAlreadyInvoiced) {
         baseSteps.push('Facturación');
       }
     } else {
       // If already paid, only add invoice step if not already invoiced
-      if (!invoiceGenerated) {
+      if (!isAlreadyInvoiced) {
         baseSteps.push('Facturación');
       }
     }
