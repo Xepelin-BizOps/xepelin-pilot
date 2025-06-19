@@ -38,7 +38,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       hasCFDI: true,
       paid: 25600,
       pending: 20000,
-      isInvoiced: true
+      isInvoiced: true,
+      paymentComplements: [
+        { id: 'CP001', amount: 15600, date: '2024-06-15' },
+        { id: 'CP002', amount: 10000, date: '2024-06-18' }
+      ]
     },
     {
       id: 'ORD-2024-002',
@@ -77,7 +81,10 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       hasCFDI: true,
       paid: 15800,
       pending: 0,
-      isInvoiced: true
+      isInvoiced: true,
+      paymentComplements: [
+        { id: 'CP003', amount: 15800, date: '2024-06-12' }
+      ]
     },
     {
       id: 'ORD-2024-005',
@@ -90,7 +97,8 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       hasCFDI: false,
       paid: 0,
       pending: 15000,
-      isInvoiced: true
+      isInvoiced: true,
+      paymentComplements: []
     },
     {
       id: 'ORD-2024-006',
@@ -103,7 +111,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       hasCFDI: true,
       paid: 28500,
       pending: 0,
-      isInvoiced: true
+      isInvoiced: true,
+      paymentComplements: [
+        { id: 'CP004', amount: 14250, date: '2024-06-10' },
+        { id: 'CP005', amount: 14250, date: '2024-06-12' }
+      ]
     },
     {
       id: 'ORD-2024-007',
