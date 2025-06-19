@@ -32,13 +32,27 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
   const [partialPayment, setPartialPayment] = useState(false);
   const [advancePercentage, setAdvancePercentage] = useState([20]);
   const [dueDate, setDueDate] = useState<Date>();
-  const [paymentTerms, setPaymentTerms] = useState('7');
+  const [paymentTerms, setPaymentTerms] = useState('30');
+  const [isCustomTerms, setIsCustomTerms] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string>('');
 
   const advanceAmount = (totalAmount * advancePercentage[0]) / 100;
 
+  const quickTermsOptions = [15, 30, 45, 60, 75, 90];
+
   const handlePartialPaymentChange = (checked: boolean | "indeterminate") => {
     setPartialPayment(checked === true);
+  };
+
+  const handleQuickTermsSelect = (days: number) => {
+    setPaymentTerms(days.toString());
+    setIsCustomTerms(false);
+    setDueDate(undefined);
+  };
+
+  const handleCustomTermsSelect = () => {
+    setIsCustomTerms(true);
+    setPaymentTerms('');
   };
 
   const handleGenerateLink = () => {
@@ -52,6 +66,7 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
       advanceAmount: amount,
       dueDate,
       paymentTerms,
+      isCustomTerms,
       clientName
     });
     
@@ -146,56 +161,81 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
             </div>
           )}
 
-          {/* Fecha límite de pago */}
-          <div>
-            <Label className="text-gray-700">Fecha límite de pago</Label>
-            <Popover>
-              <PopoverTrigger asChild>
+          {/* Términos de pago */}
+          <div className="space-y-3">
+            <Label className="text-gray-700">Términos de pago</Label>
+            
+            {/* Opciones rápidas */}
+            <div className="grid grid-cols-3 gap-2">
+              {quickTermsOptions.map((days) => (
                 <Button
-                  variant="outline"
+                  key={days}
+                  variant={paymentTerms === days.toString() && !isCustomTerms ? "default" : "outline"}
                   className={cn(
-                    "w-full justify-start text-left font-normal border-gray-300",
-                    !dueDate && "text-gray-500"
+                    "text-sm",
+                    paymentTerms === days.toString() && !isCustomTerms
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
                   )}
+                  onClick={() => handleQuickTermsSelect(days)}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "dd-MM-yyyy") : "Seleccionar fecha"}
+                  {days} días
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={setDueDate}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+              ))}
+            </div>
+
+            {/* Opción personalizada */}
+            <Button
+              variant={isCustomTerms ? "default" : "outline"}
+              className={cn(
+                "w-full text-sm",
+                isCustomTerms
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+              )}
+              onClick={handleCustomTermsSelect}
+            >
+              <CalendarIcon className="w-4 h-4 mr-2" />
+              Personalizado (calendario)
+            </Button>
           </div>
 
-          {/* Términos de pago */}
-          <div>
-            <Label className="text-gray-700">Términos de pago</Label>
-            <Select value={paymentTerms} onValueChange={setPaymentTerms}>
-              <SelectTrigger className="border-gray-300">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1 día</SelectItem>
-                <SelectItem value="3">3 días</SelectItem>
-                <SelectItem value="7">7 días</SelectItem>
-                <SelectItem value="15">15 días</SelectItem>
-                <SelectItem value="30">30 días</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Fecha límite de pago - Solo si es personalizado */}
+          {isCustomTerms && (
+            <div>
+              <Label className="text-gray-700">Fecha límite de pago</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal border-gray-300",
+                      !dueDate && "text-gray-500"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "dd-MM-yyyy") : "Seleccionar fecha"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
 
           {/* Botón generar enlace o enlace generado */}
           {!generatedLink ? (
             <Button 
               onClick={handleGenerateLink}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-medium"
+              disabled={isCustomTerms && !dueDate}
             >
               Generar enlace de pago
             </Button>
