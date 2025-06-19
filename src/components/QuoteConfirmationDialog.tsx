@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -47,7 +48,6 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       'Términos de Pago',
       'Registrar Pago',
       'Link de Pago', 
-      'Verificar Factura',
       'Facturación',
       'Orden de Venta'
     ];
@@ -63,10 +63,8 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       steps += 1; // Link de Pago
     }
     
-    steps += 1; // Verificar Factura (siempre)
-    
     if (!isAlreadyInvoiced) {
-      steps += 1; // Facturación
+      steps += 1; // Facturación (opcional)
     }
     
     steps += 1; // Orden de Venta (siempre)
@@ -78,13 +76,11 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     if (currentStep === 1) {
       return alreadyPaid ? 2 : 3; // Si ya pagó -> Registrar Pago, si no -> Link de Pago
     } else if (currentStep === 2 && alreadyPaid) {
-      return 4; // Después de Registrar Pago -> Verificar Factura
+      return isAlreadyInvoiced ? 5 : 4; // Después de Registrar Pago -> Facturación o Orden de Venta
     } else if (currentStep === 3 && !alreadyPaid) {
-      return 4; // Después de Link de Pago -> Verificar Factura
+      return isAlreadyInvoiced ? 5 : 4; // Después de Link de Pago -> Facturación o Orden de Venta
     } else if (currentStep === 4) {
-      return isAlreadyInvoiced ? 6 : 5; // Si ya facturado -> Orden de Venta, si no -> Facturación
-    } else if (currentStep === 5) {
-      return 6; // Después de Facturación -> Orden de Venta
+      return 5; // Después de Facturación -> Orden de Venta
     }
     return currentStep + 1;
   };
@@ -102,9 +98,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     } else if (currentStep === 4) {
       setCurrentStep(alreadyPaid ? 2 : 3);
     } else if (currentStep === 5) {
-      setCurrentStep(4);
-    } else if (currentStep === 6) {
-      setCurrentStep(isAlreadyInvoiced ? 4 : 5);
+      setCurrentStep(isAlreadyInvoiced ? (alreadyPaid ? 2 : 3) : 4);
     } else {
       setCurrentStep(currentStep - 1);
     }
@@ -153,6 +147,14 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     handleNextStep();
   };
 
+  const handleSkipInvoicing = () => {
+    toast({
+      title: "Facturación omitida",
+      description: "Se continuará sin generar factura",
+    });
+    handleNextStep();
+  };
+
   const handleCreateSalesOrder = () => {
     const updatedQuote = {
       ...quote,
@@ -188,9 +190,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       case 3:
         return !alreadyPaid && paymentLinkGenerated;
       case 4:
-        return true; // Verificar factura no requiere acción
-      case 5:
-        return invoiceGenerated;
+        return true; // Facturación es opcional
       default:
         return true;
     }
@@ -388,43 +388,18 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
           </div>
         );
 
-      case 4: // Verificar Estatus de Factura
+      case 4: // Facturación (Opcional)
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Paso 4: Verificar Estatus de Factura</h3>
+            <h3 className="text-lg font-semibold">Paso 4: Facturación (Opcional)</h3>
             <div className="space-y-3">
-              {isAlreadyInvoiced ? (
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <div className="flex items-center space-x-2 text-green-800">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="font-semibold">Factura ya emitida</span>
-                  </div>
-                  <p className="text-sm text-green-700 mt-1">
-                    Esta cotización ya cuenta con factura emitida. Se procederá directamente a crear la Orden de Venta.
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                  <div className="flex items-center space-x-2 text-yellow-800">
-                    <span className="font-semibold">Factura pendiente</span>
-                  </div>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Esta cotización aún no ha sido facturada. Se procederá a generar la factura.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
-      case 5: // Facturación
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Paso 5: Facturación</h3>
-            <div className="space-y-3">
-              <p className="text-gray-600">
-                Se requiere generar la factura para esta cotización antes de crear la Orden de Venta.
-              </p>
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p className="text-blue-800 font-semibold mb-2">¿Deseas generar la factura ahora?</p>
+                <p className="text-sm text-blue-700">
+                  Puedes generar la factura ahora o omitir este paso. La cotización se confirmará de cualquier manera.
+                </p>
+              </div>
+              
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p><strong>Cliente:</strong> {quote?.client}</p>
                 <p><strong>Monto:</strong> ${quote?.amount?.toLocaleString()}</p>
@@ -432,9 +407,14 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
               </div>
               
               {!invoiceGenerated ? (
-                <Button onClick={() => setShowInvoiceForm(true)} className="w-full">
-                  Generar Factura
-                </Button>
+                <div className="flex space-x-3">
+                  <Button onClick={() => setShowInvoiceForm(true)} className="flex-1">
+                    Generar Factura
+                  </Button>
+                  <Button onClick={handleSkipInvoicing} variant="outline" className="flex-1">
+                    Omitir Facturación
+                  </Button>
+                </div>
               ) : (
                 <div className="flex items-center space-x-2 text-green-600">
                   <CheckCircle2 className="w-5 h-5" />
@@ -445,10 +425,10 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
           </div>
         );
 
-      case 6: // Crear Orden de Venta
+      case 5: // Crear Orden de Venta
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Paso 6: Crear Orden de Venta</h3>
+            <h3 className="text-lg font-semibold">Paso 5: Crear Orden de Venta</h3>
             <div className="space-y-3">
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-2 text-green-800 mb-2">
@@ -458,7 +438,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 <div className="text-sm text-green-700 space-y-1">
                   <p>• Términos de pago: {paymentTerms === 'custom' ? customTerms : paymentTerms} días</p>
                   <p>• Pago: {alreadyPaid ? `Registrado (${paymentMethod})` : paymentLinkGenerated ? 'Link generado' : 'Pendiente'}</p>
-                  <p>• Factura: {isAlreadyInvoiced || invoiceGenerated ? 'Generada' : 'Pendiente'}</p>
+                  <p>• Factura: {isAlreadyInvoiced || invoiceGenerated ? 'Generada' : 'Omitida'}</p>
                   <p>• Orden de Venta: Lista para crear</p>
                 </div>
               </div>
