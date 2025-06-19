@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { X, MessageSquare, Plus, Edit, Trash2, Mail } from 'lucide-react';
+import { ContactSelector } from './ContactSelector';
+import { useToast } from '@/hooks/use-toast';
 
 interface MassReminderPanelProps {
   onClose: () => void;
@@ -21,12 +23,14 @@ interface WhatsAppTemplate {
 export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose }) => {
   const [selectedChannel, setSelectedChannel] = useState('whatsapp');
   const [selectedOrders, setSelectedOrders] = useState<string[]>(['ORD-2024-001', 'ORD-2024-002']);
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [message, setMessage] = useState('Estimado cliente, le recordamos que tiene un pago pendiente. Puede realizar el pago a través del siguiente enlace: [LINK_PAGO]');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<WhatsAppTemplate | null>(null);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateMessage, setNewTemplateMessage] = useState('');
+  const { toast } = useToast();
 
   // Plantillas predefinidas de WhatsApp
   const [whatsappTemplates, setWhatsappTemplates] = useState<WhatsAppTemplate[]>([
@@ -138,12 +142,40 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
     setShowTemplateDialog(true);
   };
 
+  const handleSendReminders = () => {
+    if (selectedOrders.length === 0) {
+      toast({
+        title: "Error",
+        description: "Debe seleccionar al menos una orden para enviar recordatorios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedContacts.length === 0) {
+      toast({
+        title: "Error",
+        description: "Debe seleccionar al menos un contacto para enviar los recordatorios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: `Recordatorios enviados por ${selectedChannel === 'both' ? 'WhatsApp y Email' : selectedChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}`,
+      description: `Se enviaron ${selectedOrders.length} recordatorios a ${selectedContacts.length} contacto(s)`,
+      duration: 5000,
+    });
+
+    onClose();
+  };
+
   const selectedOrdersData = unpaidOrders.filter(order => selectedOrders.includes(order.id));
   const totalAmount = selectedOrdersData.reduce((sum, order) => sum + order.amount, 0);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-lg">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-900">Envío Masivo de Recordatorios</h3>
@@ -186,6 +218,14 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
               </SelectContent>
             </Select>
           </div>
+
+          {/* Contact Selection - using generic client name for mass reminders */}
+          <ContactSelector
+            clientName="Clientes Múltiples"
+            selectedChannel={selectedChannel}
+            selectedContacts={selectedContacts}
+            onContactsChange={setSelectedContacts}
+          />
 
           {/* WhatsApp Template Selection */}
           {(selectedChannel === 'whatsapp' || selectedChannel === 'both') && (
@@ -324,6 +364,10 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
                 <p className="font-semibold text-gray-900">{selectedOrders.length}</p>
               </div>
               <div>
+                <p className="text-gray-600">Contactos seleccionados:</p>
+                <p className="font-semibold text-gray-900">{selectedContacts.length}</p>
+              </div>
+              <div>
                 <p className="text-gray-600">Monto total:</p>
                 <p className="font-semibold text-gray-900">${totalAmount.toLocaleString()}</p>
               </div>
@@ -335,10 +379,6 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
                    'WhatsApp y Email'}
                 </p>
               </div>
-              <div>
-                <p className="text-gray-600">Destinatarios:</p>
-                <p className="font-semibold text-gray-900">{selectedOrders.length} clientes</p>
-              </div>
             </div>
           </Card>
 
@@ -346,10 +386,11 @@ export const MassReminderPanel: React.FC<MassReminderPanelProps> = ({ onClose })
           <div className="flex space-x-3">
             <Button 
               className="flex-1 bg-blue-600 hover:bg-blue-700"
-              disabled={selectedOrders.length === 0}
+              disabled={selectedOrders.length === 0 || selectedContacts.length === 0}
+              onClick={handleSendReminders}
             >
               <MessageSquare className="w-4 h-4 mr-2" />
-              Enviar Recordatorios ({selectedOrders.length})
+              Enviar Recordatorios ({selectedOrders.length} órdenes, {selectedContacts.length} contactos)
             </Button>
             <Button variant="outline" onClick={onClose} className="border-gray-300 text-gray-600 hover:bg-gray-50">
               Cancelar

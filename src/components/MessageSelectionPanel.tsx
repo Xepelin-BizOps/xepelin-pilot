@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { X, MessageSquare, Mail, Plus, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ContactSelector } from './ContactSelector';
 
 interface MessageSelectionPanelProps {
   isOpen: boolean;
@@ -35,6 +35,7 @@ export const MessageSelectionPanel: React.FC<MessageSelectionPanelProps> = ({
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [selectedChannel, setSelectedChannel] = useState('whatsapp');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<MessageTemplate | null>(null);
@@ -133,12 +134,21 @@ export const MessageSelectionPanel: React.FC<MessageSelectionPanelProps> = ({
       return;
     }
 
+    if (selectedContacts.length === 0) {
+      toast({
+        title: "Error",
+        description: "Debe seleccionar al menos un contacto para enviar el mensaje",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const selectedItemsData = items.filter(item => selectedItems.includes(item.id));
     const itemsList = selectedItemsData.map(item => `${item.id} (${item.client || clientName})`).join(', ');
     
     toast({
       title: `Mensaje enviado por ${selectedChannel === 'both' ? 'WhatsApp y Email' : selectedChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}`,
-      description: `Se envió mensaje a ${clientName} sobre: ${itemsList}`,
+      description: `Se envió mensaje a ${selectedContacts.length} contacto(s) sobre: ${itemsList}`,
       duration: 5000,
     });
 
@@ -157,7 +167,7 @@ export const MessageSelectionPanel: React.FC<MessageSelectionPanelProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-3xl bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200 sticky top-0 bg-white rounded-t-lg">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-900">
@@ -199,6 +209,14 @@ export const MessageSelectionPanel: React.FC<MessageSelectionPanelProps> = ({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Contact Selection */}
+          <ContactSelector
+            clientName={clientName}
+            selectedChannel={selectedChannel}
+            selectedContacts={selectedContacts}
+            onContactsChange={setSelectedContacts}
+          />
 
           {/* Template Selection */}
           <div>
@@ -336,6 +354,10 @@ export const MessageSelectionPanel: React.FC<MessageSelectionPanelProps> = ({
                 <p className="font-semibold text-gray-900">{selectedItems.length}</p>
               </div>
               <div>
+                <p className="text-gray-600">Contactos seleccionados:</p>
+                <p className="font-semibold text-gray-900">{selectedContacts.length}</p>
+              </div>
+              <div>
                 <p className="text-gray-600">Monto total:</p>
                 <p className="font-semibold text-gray-900">${totalAmount.toLocaleString()}</p>
               </div>
@@ -346,10 +368,6 @@ export const MessageSelectionPanel: React.FC<MessageSelectionPanelProps> = ({
                    selectedChannel === 'whatsapp' ? 'WhatsApp' : 'Email'}
                 </p>
               </div>
-              <div>
-                <p className="text-gray-600">Cliente:</p>
-                <p className="font-semibold text-gray-900">{clientName}</p>
-              </div>
             </div>
           </Card>
 
@@ -357,11 +375,11 @@ export const MessageSelectionPanel: React.FC<MessageSelectionPanelProps> = ({
           <div className="flex space-x-3">
             <Button 
               className="flex-1 bg-blue-600 hover:bg-blue-700"
-              disabled={selectedItems.length === 0}
+              disabled={selectedItems.length === 0 || selectedContacts.length === 0}
               onClick={handleSendMessage}
             >
               <MessageSquare className="w-4 h-4 mr-2" />
-              Enviar Mensaje ({selectedItems.length})
+              Enviar Mensaje ({selectedItems.length} items, {selectedContacts.length} contactos)
             </Button>
             <Button variant="outline" onClick={onClose} className="border-gray-300 text-gray-600 hover:bg-gray-50">
               Cancelar
