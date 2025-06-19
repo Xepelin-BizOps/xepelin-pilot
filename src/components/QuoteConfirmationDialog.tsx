@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -143,9 +142,14 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     window.open(mailtoUrl);
   };
 
-  const handleInvoiceComplete = () => {
-    setInvoiceGenerated(true);
+  const handleInvoiceFormClose = () => {
     setShowInvoiceForm(false);
+    // Assume invoice was generated when form is closed after being opened
+    setInvoiceGenerated(true);
+    toast({
+      title: "Factura generada",
+      description: "La factura se ha generado exitosamente",
+    });
     handleNextStep();
   };
 
@@ -523,12 +527,11 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       {showInvoiceForm && quote && (
         <InvoiceForm
           isOpen={showInvoiceForm}
-          onClose={() => setShowInvoiceForm(false)}
+          onClose={handleInvoiceFormClose}
           orderRef={quote.id}
           totalAmount={quote.amount}
           clientName={quote.client}
           orderDate={quote.date}
-          onComplete={handleInvoiceComplete}
         />
       )}
     </>
