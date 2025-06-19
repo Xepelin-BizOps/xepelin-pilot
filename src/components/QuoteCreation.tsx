@@ -394,11 +394,15 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                           <TooltipTrigger asChild>
                             <Button 
                               size="sm" 
-                              variant="outline" 
-                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              variant={quote.isInvoiced ? "default" : "outline"}
+                              className={
+                                quote.isInvoiced 
+                                  ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                                  : "border-blue-300 text-blue-600 hover:bg-blue-50"
+                              }
                               onClick={() => handleInvoiceClick(quote)}
                             >
-                              <FileText className="w-4 h-4" />
+                              <FileText className={`w-4 h-4 ${quote.isInvoiced ? 'text-white' : ''}`} />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
