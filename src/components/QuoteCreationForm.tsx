@@ -177,7 +177,7 @@ export const QuoteCreationForm: React.FC<QuoteCreationFormProps> = ({ onClose, e
     }
 
     const quoteData = {
-      id: editingQuote?.id || `COT-2024-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+      id: editingQuote?.id || Math.floor(100000 + Math.random() * 900000).toString(),
       client: selectedClient,
       date: quoteDate,
       amount: total,
