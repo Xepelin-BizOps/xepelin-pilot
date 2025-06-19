@@ -34,7 +34,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
   const [paymentLinkGenerated, setPaymentLinkGenerated] = useState(false);
   const [paymentLink, setPaymentLink] = useState('');
   const [partialPayment, setPartialPayment] = useState(false);
-  const [partialAmount, setPartialAmount] = useState('');
+  const [partialPercentage, setPartialPercentage] = useState('');
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [invoiceGenerated, setInvoiceGenerated] = useState(false);
   const { toast } = useToast();
@@ -42,9 +42,10 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
   // Check if quote is already invoiced
   const isAlreadyInvoiced = quote?.isInvoiced || false;
 
-  // Calculate partial payment amount and remaining balance
-  const partialAmountNumber = parseFloat(partialAmount) || 0;
+  // Calculate partial payment amount and remaining balance based on percentage
+  const partialPercentageNumber = parseFloat(partialPercentage) || 0;
   const totalAmount = quote?.amount || 0;
+  const partialAmountNumber = (totalAmount * partialPercentageNumber) / 100;
   const remainingBalance = totalAmount - partialAmountNumber;
 
   const getStepTitle = (step: number) => {
@@ -115,7 +116,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     setPaymentLinkGenerated(true);
     toast({
       title: "Link de pago generado",
-      description: `Link creado para ${partialPayment ? 'pago parcial de' : ''} $${amount?.toLocaleString()}`,
+      description: `Link creado para ${partialPayment ? `pago parcial del ${partialPercentageNumber}%` : 'pago completo'} - $${amount?.toLocaleString()}`,
     });
   };
 
@@ -346,20 +347,25 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 {partialPayment && (
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="partialAmount">Monto del pago parcial</Label>
+                      <Label htmlFor="partialPercentage">Porcentaje del pago parcial (%)</Label>
                       <Input
-                        id="partialAmount"
+                        id="partialPercentage"
                         type="number"
-                        value={partialAmount}
-                        onChange={(e) => setPartialAmount(e.target.value)}
-                        placeholder="Ingresa el monto"
-                        max={totalAmount}
+                        value={partialPercentage}
+                        onChange={(e) => setPartialPercentage(e.target.value)}
+                        placeholder="Ingresa el porcentaje (ej: 50)"
+                        min="1"
+                        max="100"
                       />
                     </div>
                     
-                    {partialAmountNumber > 0 && (
+                    {partialPercentageNumber > 0 && (
                       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                         <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-blue-700">Porcentaje a pagar:</span>
+                            <span className="font-semibold text-blue-800">{partialPercentageNumber}%</span>
+                          </div>
                           <div className="flex justify-between">
                             <span className="text-blue-700">Monto a pagar ahora:</span>
                             <span className="font-semibold text-blue-800">${partialAmountNumber.toLocaleString()}</span>
@@ -378,10 +384,10 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                       </div>
                     )}
 
-                    {partialAmountNumber > totalAmount && (
+                    {partialPercentageNumber > 100 && (
                       <div className="bg-red-50 p-3 rounded-lg border border-red-200">
                         <p className="text-red-700 text-sm">
-                          El monto parcial no puede ser mayor al monto total de la cotización.
+                          El porcentaje no puede ser mayor al 100%.
                         </p>
                       </div>
                     )}
@@ -393,7 +399,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 <Button 
                   onClick={handleGeneratePaymentLink} 
                   className="w-full"
-                  disabled={partialPayment && (partialAmountNumber <= 0 || partialAmountNumber > totalAmount)}
+                  disabled={partialPayment && (partialPercentageNumber <= 0 || partialPercentageNumber > 100)}
                 >
                   Generar Link de Pago
                 </Button>
