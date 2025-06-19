@@ -34,15 +34,51 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
   const [alreadyPaid, setAlreadyPaid] = useState(false);
   const { toast } = useToast();
 
+  const getTotalSteps = () => {
+    if (alreadyPaid && invoiceGenerated) return 3; // Steps 1, 2, and final
+    if (alreadyPaid || invoiceGenerated) return 4; // Skip one step
+    return 5; // All steps
+  };
+
+  const getStepNumber = (step: number) => {
+    if (alreadyPaid && step > 2) return step - 1; // Skip step 3 when already paid
+    return step;
+  };
+
   const handleNextStep = () => {
-    if (currentStep < 5) {
-      setCurrentStep(currentStep + 1);
+    const totalSteps = getTotalSteps();
+    if (currentStep < totalSteps) {
+      let nextStep = currentStep + 1;
+      
+      // Skip step 3 if already paid (since payment is already registered)
+      if (alreadyPaid && nextStep === 3) {
+        nextStep = 4;
+      }
+      
+      // Skip step 4 if already invoiced
+      if (invoiceGenerated && nextStep === 4) {
+        nextStep = 5;
+      }
+      
+      setCurrentStep(nextStep);
     }
   };
 
   const handlePreviousStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      let prevStep = currentStep - 1;
+      
+      // Skip step 4 if already invoiced (going backwards)
+      if (invoiceGenerated && prevStep === 4) {
+        prevStep = 3;
+      }
+      
+      // Skip step 3 if already paid (going backwards)
+      if (alreadyPaid && prevStep === 3) {
+        prevStep = 2;
+      }
+      
+      setCurrentStep(prevStep);
     }
   };
 
@@ -51,22 +87,6 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     toast({
       title: "Link de pago generado",
       description: "El link de pago ha sido creado exitosamente",
-    });
-  };
-
-  const handleRegisterPayment = () => {
-    if (!paymentMethod) {
-      toast({
-        title: "Error",
-        description: "Por favor selecciona el método de pago",
-        variant: "destructive",
-      });
-      return;
-    }
-    setPaymentRegistered(true);
-    toast({
-      title: "Pago registrado",
-      description: "El pago ha sido registrado exitosamente",
     });
   };
 
@@ -87,7 +107,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
       status: 'Confirmada',
       paymentTerms,
       paymentLinkGenerated,
-      paymentRegistered,
+      paymentRegistered: alreadyPaid || paymentRegistered,
       paymentMethod,
       bankAccount,
       xepelinAccount,
@@ -232,6 +252,26 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                   )}
                 </div>
               )}
+
+              <Separator />
+
+              <div className="space-y-3">
+                <Label>Estado de facturación</Label>
+                <RadioGroup
+                  value={invoiceGenerated ? "invoiced" : "pending"}
+                  onValueChange={(value) => setInvoiceGenerated(value === "invoiced")}
+                  className="flex flex-col space-y-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pending" id="invoice-pending-step1" />
+                    <Label htmlFor="invoice-pending-step1">Pendiente de facturar</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="invoiced" id="invoice-invoiced-step1" />
+                    <Label htmlFor="invoice-invoiced-step1">Ya está facturado</Label>
+                  </div>
+                </RadioGroup>
+              </div>
             </div>
           </div>
         );
@@ -277,103 +317,11 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
           </div>
         );
 
-      case 3:
-        return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Registrar Pago</h3>
-            <div className="space-y-3">
-              {alreadyPaid ? (
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <div className="flex items-center space-x-2 text-green-800 mb-2">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="font-semibold">Pago ya registrado</span>
-                  </div>
-                  <div className="text-sm text-green-700 space-y-1">
-                    <p>• Método: {paymentMethod === 'transfer' ? 'Transferencia bancaria' : paymentMethod === 'cash' ? 'Efectivo' : 'Tarjeta'}</p>
-                    {paymentMethod === 'transfer' && bankAccount && <p>• Cuenta cliente: {bankAccount}</p>}
-                    {paymentMethod === 'transfer' && xepelinAccount && <p>• Cuenta Xepelin: {xepelinAccount}</p>}
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="space-y-3">
-                    <Label>¿El pago ya se realizó?</Label>
-                    <RadioGroup
-                      value={paymentRegistered ? "yes" : "no"}
-                      onValueChange={(value) => setPaymentRegistered(value === "yes")}
-                      className="flex flex-col space-y-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="payment-yes" />
-                        <Label htmlFor="payment-yes">Sí, registrar pago</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="payment-no" />
-                        <Label htmlFor="payment-no">No, continuar sin registrar</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  {paymentRegistered && (
-                    <div className="space-y-3 border-t pt-3">
-                      <Label>Método de pago</Label>
-                      <RadioGroup
-                        value={paymentMethod}
-                        onValueChange={setPaymentMethod}
-                        className="flex flex-col space-y-2"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="transfer" id="transfer" />
-                          <Building2 className="w-4 h-4" />
-                          <Label htmlFor="transfer">Transferencia bancaria</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="cash" id="cash" />
-                          <Banknote className="w-4 h-4" />
-                          <Label htmlFor="cash">Efectivo</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="card" id="card" />
-                          <CreditCard className="w-4 h-4" />
-                          <Label htmlFor="card">Tarjeta</Label>
-                        </div>
-                      </RadioGroup>
-
-                      {paymentMethod === 'transfer' && (
-                        <div className="space-y-3">
-                          <div>
-                            <Label htmlFor="bankAccount">Cuenta bancaria del cliente</Label>
-                            <Input
-                              id="bankAccount"
-                              value={bankAccount}
-                              onChange={(e) => setBankAccount(e.target.value)}
-                              placeholder="Número de cuenta o banco"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="xepelinAccount">Cuenta Xepelin destino</Label>
-                            <Select value={xepelinAccount} onValueChange={setXepelinAccount}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleccionar cuenta Xepelin" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="xepelin-main">Xepelin - Cuenta Principal</SelectItem>
-                                <SelectItem value="xepelin-secondary">Xepelin - Cuenta Secundaria</SelectItem>
-                                <SelectItem value="xepelin-usd">Xepelin - USD</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        );
-
       case 4:
+        if (invoiceGenerated) {
+          // Skip to final step if already invoiced
+          return renderStepContent.call(this, { currentStep: 5 });
+        }
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Facturación</h3>
@@ -439,13 +387,26 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
     }
   };
 
-  const steps = [
-    'Términos de Pago',
-    'Link de Pago', 
-    'Registrar Pago',
-    'Facturación',
-    'Completado'
-  ];
+  const getStepNames = () => {
+    const baseSteps = ['Términos de Pago', 'Link de Pago'];
+    
+    if (!alreadyPaid) {
+      // Only add invoice step if not already invoiced
+      if (!invoiceGenerated) {
+        baseSteps.push('Facturación');
+      }
+    } else {
+      // If already paid, only add invoice step if not already invoiced
+      if (!invoiceGenerated) {
+        baseSteps.push('Facturación');
+      }
+    }
+    
+    baseSteps.push('Completado');
+    return baseSteps;
+  };
+
+  const steps = getStepNames();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -461,7 +422,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
               <div key={index} className="flex items-center">
                 <div 
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    index + 1 <= currentStep 
+                    index + 1 <= getStepNumber(currentStep)
                       ? 'bg-blue-600 text-white' 
                       : 'bg-gray-200 text-gray-600'
                   }`}
@@ -471,7 +432,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 {index < steps.length - 1 && (
                   <div 
                     className={`w-12 h-0.5 mx-2 ${
-                      index + 1 < currentStep ? 'bg-blue-600' : 'bg-gray-200'
+                      index + 1 < getStepNumber(currentStep) ? 'bg-blue-600' : 'bg-gray-200'
                     }`}
                   />
                 )}
@@ -493,7 +454,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
               Anterior
             </Button>
             
-            {currentStep < 5 && (
+            {currentStep < getTotalSteps() && (
               <Button 
                 onClick={handleNextStep}
                 disabled={
