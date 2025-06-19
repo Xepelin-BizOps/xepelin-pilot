@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,21 +37,28 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
 
   const advanceAmount = (totalAmount * advancePercentage[0]) / 100;
 
-  const quickTermsOptions = [15, 30, 45, 60, 75, 90];
+  const quickTermsOptions = [
+    { value: '15', label: '15 días' },
+    { value: '30', label: '30 días' },
+    { value: '45', label: '45 días' },
+    { value: '60', label: '60 días' },
+    { value: '75', label: '75 días' },
+    { value: '90', label: '90 días' },
+    { value: 'custom', label: 'Personalizado (calendario)' }
+  ];
 
   const handlePartialPaymentChange = (checked: boolean | "indeterminate") => {
     setPartialPayment(checked === true);
   };
 
-  const handleQuickTermsSelect = (days: number) => {
-    setPaymentTerms(days.toString());
-    setIsCustomTerms(false);
-    setDueDate(undefined);
-  };
-
-  const handleCustomTermsSelect = () => {
-    setIsCustomTerms(true);
-    setPaymentTerms('');
+  const handlePaymentTermsChange = (value: string) => {
+    setPaymentTerms(value);
+    if (value === 'custom') {
+      setIsCustomTerms(true);
+    } else {
+      setIsCustomTerms(false);
+      setDueDate(undefined);
+    }
   };
 
   const handleGenerateLink = () => {
@@ -165,39 +171,22 @@ export const PaymentLinkForm: React.FC<PaymentLinkFormProps> = ({
           <div className="space-y-3">
             <Label className="text-gray-700">Términos de pago</Label>
             
-            {/* Opciones rápidas */}
-            <div className="grid grid-cols-3 gap-2">
-              {quickTermsOptions.map((days) => (
-                <Button
-                  key={days}
-                  variant={paymentTerms === days.toString() && !isCustomTerms ? "default" : "outline"}
-                  className={cn(
-                    "text-sm",
-                    paymentTerms === days.toString() && !isCustomTerms
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                  )}
-                  onClick={() => handleQuickTermsSelect(days)}
-                >
-                  {days} días
-                </Button>
-              ))}
-            </div>
-
-            {/* Opción personalizada */}
-            <Button
-              variant={isCustomTerms ? "default" : "outline"}
-              className={cn(
-                "w-full text-sm",
-                isCustomTerms
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              )}
-              onClick={handleCustomTermsSelect}
-            >
-              <CalendarIcon className="w-4 h-4 mr-2" />
-              Personalizado (calendario)
-            </Button>
+            <Select value={paymentTerms} onValueChange={handlePaymentTermsChange}>
+              <SelectTrigger className="w-full border-gray-300">
+                <SelectValue placeholder="Seleccionar términos de pago" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                {quickTermsOptions.map((option) => (
+                  <SelectItem 
+                    key={option.value} 
+                    value={option.value}
+                    className="hover:bg-gray-50 cursor-pointer"
+                  >
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Fecha límite de pago - Solo si es personalizado */}
