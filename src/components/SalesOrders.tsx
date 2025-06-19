@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
@@ -227,48 +228,50 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <Card className="p-6 bg-white border border-gray-300 rounded-lg shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Órdenes de Venta</h3>
-            <div className="flex space-x-2">
-              <Button 
-                onClick={onShowReminderPanel}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Enviar Recordatorios
-              </Button>
-              <Button 
-                onClick={handleReportsClick}
-                variant="outline"
-                className="border-blue-400 text-blue-600 hover:bg-blue-50"
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Reportes
-              </Button>
-              <Input 
-                placeholder="Buscar órdenes..." 
-                className="w-64 bg-white border-gray-400 rounded-lg focus:border-blue-500"
-              />
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">Órdenes de Venta</h3>
+              <div className="flex space-x-2">
+                <Button 
+                  onClick={onShowReminderPanel}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Enviar Recordatorios
+                </Button>
+                <Button 
+                  onClick={handleReportsClick}
+                  variant="outline"
+                  className="border-blue-400 text-blue-600 hover:bg-blue-50"
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Reportes
+                </Button>
+                <Input 
+                  placeholder="Buscar órdenes..." 
+                  className="w-64"
+                />
+              </div>
             </div>
-          </div>
+          </CardHeader>
+          
+          <CardContent className="p-0">
+            {selectedOrders.length > 0 && (
+              <div className="p-6 border-b">
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleMassReminders}
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Enviar Recordatorios ({selectedOrders.length})
+                </Button>
+              </div>
+            )}
 
-          {selectedOrders.length > 0 && (
-            <div className="mb-4">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={handleMassReminders}
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Enviar Recordatorios ({selectedOrders.length})
-              </Button>
-            </div>
-          )}
-
-          <div className="overflow-hidden border border-gray-300 rounded-lg">
-            <table className="w-full">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="text-left py-3 px-4 w-12">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
                     <input 
                       type="checkbox" 
                       className="rounded border-gray-400"
@@ -280,22 +283,22 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                         }
                       }}
                     />
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">ID Orden</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Cliente</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Ref. Cotización</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Fecha</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Monto Total</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Pagado</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Pendiente</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Estado</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-800">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white">
+                  </TableHead>
+                  <TableHead>ID Orden</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Ref. Cotización</TableHead>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Monto Total</TableHead>
+                  <TableHead>Pagado</TableHead>
+                  <TableHead>Pendiente</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {orders.map((order) => (
-                  <tr key={order.id} className="border-t border-gray-200 hover:bg-gray-50">
-                    <td className="py-3 px-4">
+                  <TableRow key={order.id}>
+                    <TableCell>
                       {order.pending > 0 && (
                         <input 
                           type="checkbox" 
@@ -304,22 +307,22 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                           onChange={() => toggleOrderSelection(order.id)}
                         />
                       )}
-                    </td>
-                    <td className="py-3 px-4 font-medium text-blue-600">{order.id}</td>
-                    <td className="py-3 px-4">
+                    </TableCell>
+                    <TableCell className="font-medium text-blue-600">{order.id}</TableCell>
+                    <TableCell>
                       <button
                         onClick={() => handleClientClick(order.client)}
                         className="text-gray-900 hover:text-blue-600 transition-colors"
                       >
                         {order.client}
                       </button>
-                    </td>
-                    <td className="py-3 px-4 text-gray-700">{order.quoteRef}</td>
-                    <td className="py-3 px-4 text-gray-700">{order.date}</td>
-                    <td className="py-3 px-4 font-semibold text-gray-900">${order.amount.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-blue-600 font-medium">${order.paid.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-gray-600 font-medium">${order.pending.toLocaleString()}</td>
-                    <td className="py-3 px-4">
+                    </TableCell>
+                    <TableCell className="text-gray-700">{order.quoteRef}</TableCell>
+                    <TableCell className="text-gray-700">{order.date}</TableCell>
+                    <TableCell className="font-semibold text-gray-900">${order.amount.toLocaleString()}</TableCell>
+                    <TableCell className="text-blue-600 font-medium">${order.paid.toLocaleString()}</TableCell>
+                    <TableCell className="text-gray-600 font-medium">${order.pending.toLocaleString()}</TableCell>
+                    <TableCell>
                       <Badge 
                         variant="secondary"
                         className={
@@ -329,8 +332,8 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                       >
                         {order.status}
                       </Badge>
-                    </td>
-                    <td className="py-3 px-4">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex space-x-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -396,12 +399,12 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </CardContent>
         </Card>
 
         {showPaymentLinkForm && selectedOrder && (
