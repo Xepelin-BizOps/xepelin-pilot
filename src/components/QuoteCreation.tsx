@@ -10,7 +10,7 @@ import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
 import { QuoteConfirmationDialog } from '@/components/QuoteConfirmationDialog';
-import { Plus, FileText, Link, Send, MoreHorizontal, Eye } from 'lucide-react';
+import { Plus, FileText, Link, Send, MoreHorizontal, Eye, Download, X } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -294,6 +294,39 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
     };
   };
 
+  const handleCancelInvoice = (quote: any) => {
+    setQuotes(prevQuotes => 
+      prevQuotes.map(q => 
+        q.id === quote.id 
+          ? { ...q, isInvoiced: false }
+          : q
+      )
+    );
+    
+    console.log('Cancelando factura:', quote.id);
+    toast({
+      title: "Factura cancelada",
+      description: `La factura de ${quote.id} ha sido cancelada`,
+      variant: "destructive",
+    });
+  };
+
+  const handleViewInvoice = (quote: any) => {
+    console.log('Ver factura:', quote.id);
+    toast({
+      title: "Visualizando factura",
+      description: "Abriendo vista previa de la factura",
+    });
+  };
+
+  const handleDownloadInvoice = (quote: any) => {
+    console.log('Descargar factura:', quote.id);
+    toast({
+      title: "Descargando factura",
+      description: "El archivo PDF se está descargando",
+    });
+  };
+
   if (showCreationForm) {
     return (
       <QuoteCreationForm 
@@ -392,21 +425,61 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                         
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              variant={quote.isInvoiced ? "default" : "outline"}
-                              className={
-                                quote.isInvoiced 
-                                  ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                                  : "border-blue-300 text-blue-600 hover:bg-blue-50"
-                              }
-                              onClick={() => handleInvoiceClick(quote)}
-                            >
-                              <FileText className={`w-4 h-4 ${quote.isInvoiced ? 'text-white' : ''}`} />
-                            </Button>
+                            {quote.isInvoiced ? (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="default"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                  >
+                                    <FileText className="w-4 h-4 text-white" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg">
+                                  <DropdownMenuItem 
+                                    className="hover:bg-gray-50 text-gray-700 cursor-pointer"
+                                    onClick={() => handleViewInvoice(quote)}
+                                  >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Ver Factura
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="hover:bg-gray-50 text-gray-700 cursor-pointer"
+                                    onClick={() => handleDownloadInvoice(quote)}
+                                  >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Descargar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="hover:bg-gray-50 text-gray-700 cursor-pointer"
+                                    onClick={() => handleInvoiceClick(quote)}
+                                  >
+                                    <FileText className="w-4 h-4 mr-2" />
+                                    Editar Factura
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="hover:bg-red-50 text-red-600 cursor-pointer"
+                                    onClick={() => handleCancelInvoice(quote)}
+                                  >
+                                    <X className="w-4 h-4 mr-2" />
+                                    Cancelar Factura
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                                onClick={() => handleInvoiceClick(quote)}
+                              >
+                                <FileText className="w-4 h-4" />
+                              </Button>
+                            )}
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>{quote.isInvoiced ? 'Editar Factura' : 'Facturar'}</p>
+                            <p>{quote.isInvoiced ? 'Opciones de Factura' : 'Facturar'}</p>
                           </TooltipContent>
                         </Tooltip>
 
