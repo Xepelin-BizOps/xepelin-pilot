@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -42,6 +41,11 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
 
   // Check if quote is already invoiced
   const isAlreadyInvoiced = quote?.isInvoiced || false;
+
+  // Calculate partial payment amount and remaining balance
+  const partialAmountNumber = parseFloat(partialAmount) || 0;
+  const totalAmount = quote?.amount || 0;
+  const remainingBalance = totalAmount - partialAmountNumber;
 
   const getStepTitle = (step: number) => {
     const titles = [
@@ -105,7 +109,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
   };
 
   const handleGeneratePaymentLink = () => {
-    const amount = partialPayment ? parseFloat(partialAmount) : quote?.amount;
+    const amount = partialPayment ? partialAmountNumber : quote?.amount;
     const link = `https://pay.xepelin.com/quote-${quote?.id}-${Date.now()}`;
     setPaymentLink(link);
     setPaymentLinkGenerated(true);
@@ -319,7 +323,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
             <div className="space-y-3">
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p><strong>Cliente:</strong> {quote?.client}</p>
-                <p><strong>Monto total:</strong> ${quote?.amount?.toLocaleString()}</p>
+                <p><strong>Monto total:</strong> ${totalAmount?.toLocaleString()}</p>
                 <p><strong>Plazo:</strong> {paymentTerms === 'custom' ? customTerms : paymentTerms} días</p>
               </div>
 
@@ -331,7 +335,7 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="full" id="full-payment" />
-                    <Label htmlFor="full-payment">Pago completo</Label>
+                    <Label htmlFor="full-payment">Pago completo - ${totalAmount?.toLocaleString()}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="partial" id="partial-payment" />
@@ -340,21 +344,57 @@ export const QuoteConfirmationDialog: React.FC<QuoteConfirmationDialogProps> = (
                 </RadioGroup>
 
                 {partialPayment && (
-                  <div>
-                    <Label htmlFor="partialAmount">Monto del pago parcial</Label>
-                    <Input
-                      id="partialAmount"
-                      type="number"
-                      value={partialAmount}
-                      onChange={(e) => setPartialAmount(e.target.value)}
-                      placeholder="Ingresa el monto"
-                    />
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="partialAmount">Monto del pago parcial</Label>
+                      <Input
+                        id="partialAmount"
+                        type="number"
+                        value={partialAmount}
+                        onChange={(e) => setPartialAmount(e.target.value)}
+                        placeholder="Ingresa el monto"
+                        max={totalAmount}
+                      />
+                    </div>
+                    
+                    {partialAmountNumber > 0 && (
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-blue-700">Monto a pagar ahora:</span>
+                            <span className="font-semibold text-blue-800">${partialAmountNumber.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-blue-700">Saldo pendiente:</span>
+                            <span className="font-semibold text-blue-800">${remainingBalance.toLocaleString()}</span>
+                          </div>
+                          <div className="border-t border-blue-200 pt-2 mt-2">
+                            <div className="flex justify-between">
+                              <span className="text-blue-700 font-medium">Total de la cotización:</span>
+                              <span className="font-bold text-blue-900">${totalAmount.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {partialAmountNumber > totalAmount && (
+                      <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                        <p className="text-red-700 text-sm">
+                          El monto parcial no puede ser mayor al monto total de la cotización.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
               {!paymentLinkGenerated ? (
-                <Button onClick={handleGeneratePaymentLink} className="w-full">
+                <Button 
+                  onClick={handleGeneratePaymentLink} 
+                  className="w-full"
+                  disabled={partialPayment && (partialAmountNumber <= 0 || partialAmountNumber > totalAmount)}
+                >
                   Generar Link de Pago
                 </Button>
               ) : (
