@@ -498,6 +498,24 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                 </div>
               </DialogHeader>
               <div className="space-y-4">
+                {/* Company Address Section */}
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-2">Datos de la Empresa:</h4>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-gray-900 font-medium">{companyAddress.name}</p>
+                    <p className="text-gray-900">{companyAddress.street}</p>
+                    <p className="text-gray-900">
+                      {companyAddress.city}, {companyAddress.state} {companyAddress.zipCode}
+                    </p>
+                    <p className="text-gray-900">{companyAddress.country}</p>
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                      <p className="text-gray-900">Tel: {companyAddress.phone}</p>
+                      <p className="text-gray-900">Email: {companyAddress.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Client Basic Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700">Cliente:</label>
@@ -525,23 +543,6 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                   <div>
                     <label className="text-sm font-medium text-gray-700">Total de Productos:</label>
                     <p className="text-gray-900">{selectedQuote.products} items</p>
-                  </div>
-                </div>
-
-                {/* Company Address Section */}
-                <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-2">Datos de la Empresa:</h4>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-gray-900 font-medium">{companyAddress.name}</p>
-                    <p className="text-gray-900">{companyAddress.street}</p>
-                    <p className="text-gray-900">
-                      {companyAddress.city}, {companyAddress.state} {companyAddress.zipCode}
-                    </p>
-                    <p className="text-gray-900">{companyAddress.country}</p>
-                    <div className="mt-2 pt-2 border-t border-gray-200">
-                      <p className="text-gray-900">Tel: {companyAddress.phone}</p>
-                      <p className="text-gray-900">Email: {companyAddress.email}</p>
-                    </div>
                   </div>
                 </div>
 
