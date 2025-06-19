@@ -64,7 +64,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       hasCFDI: true,
       paid: 18900,
       pending: 0,
-      isInvoiced: true
+      isInvoiced: false
     },
     {
       id: 'ORD-2024-004',
@@ -90,7 +90,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       hasCFDI: false,
       paid: 0,
       pending: 15000,
-      isInvoiced: false
+      isInvoiced: true
     },
     {
       id: 'ORD-2024-006',
@@ -116,7 +116,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
       hasCFDI: true,
       paid: 12000,
       pending: 10100,
-      isInvoiced: true
+      isInvoiced: false
     }
   ];
 
