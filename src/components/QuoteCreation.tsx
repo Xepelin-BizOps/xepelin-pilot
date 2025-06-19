@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -546,20 +545,7 @@ export const QuoteCreation: React.FC<QuoteCreationProps> = ({ onClientClick, sho
                   </div>
                 </div>
 
-                {/* Client Address Section */}
-                {selectedQuote.clientAddress && (
-                  <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-2">Dirección del Cliente:</h4>
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <p className="text-gray-900 font-medium">{selectedQuote.client}</p>
-                      <p className="text-gray-900">{selectedQuote.clientAddress.street}</p>
-                      <p className="text-gray-900">
-                        {selectedQuote.clientAddress.city}, {selectedQuote.clientAddress.state} {selectedQuote.clientAddress.zipCode}
-                      </p>
-                      <p className="text-gray-900">{selectedQuote.clientAddress.country}</p>
-                    </div>
-                  </div>
-                )}
+                
                 
                 <div>
                   <h4 className="text-md font-semibold text-gray-900 mb-2">Productos:</h4>
