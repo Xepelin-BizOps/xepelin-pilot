@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Download, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CIFUploader } from '@/components/CIFUploader';
+import { BillingDataSelector } from '@/components/BillingDataSelector';
 
 interface InvoiceFormProps {
   isOpen: boolean;
@@ -16,6 +17,17 @@ interface InvoiceFormProps {
   totalAmount: number;
   clientName: string;
   orderDate: string;
+}
+
+interface BillingData {
+  id: string;
+  name: string;
+  rfc: string;
+  codigoPostal: string;
+  usoCfdi: string;
+  metodoPago: string;
+  formaPago: string;
+  regimenFiscal: string;
 }
 
 export const InvoiceForm: React.FC<InvoiceFormProps> = ({
@@ -33,6 +45,8 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   const [formaPago, setFormaPago] = useState('');
   const [regimenFiscal, setRegimenFiscal] = useState('');
   const [invoiceGenerated, setInvoiceGenerated] = useState(false);
+  const [selectedBillingData, setSelectedBillingData] = useState<BillingData | null>(null);
+  const [useManualEntry, setUseManualEntry] = useState(false);
   const { toast } = useToast();
 
   const handleCIFDataExtracted = (data: {
@@ -43,6 +57,23 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
     if (data.rfc) setRfcReceptor(data.rfc);
     if (data.codigoPostal) setCodigoPostal(data.codigoPostal);
     if (data.regimenFiscal) setRegimenFiscal(data.regimenFiscal);
+  };
+
+  const handleBillingDataSelected = (data: BillingData) => {
+    setSelectedBillingData(data);
+    setRfcReceptor(data.rfc);
+    setCodigoPostal(data.codigoPostal);
+    setUsoCfdi(data.usoCfdi);
+    setMetodoPago(data.metodoPago);
+    setFormaPago(data.formaPago);
+    setRegimenFiscal(data.regimenFiscal);
+    setUseManualEntry(false);
+  };
+
+  const handleManualEntry = () => {
+    setUseManualEntry(true);
+    setSelectedBillingData(null);
+    // Keep current values if any
   };
 
   const handleGenerateInvoice = () => {
@@ -90,7 +121,7 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl mx-auto">
+      <DialogContent className="max-w-4xl mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-gray-900">
             {invoiceGenerated ? 'Factura Generada' : 'Emitir Factura'}
@@ -122,98 +153,157 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
               </div>
             </Card>
 
-            {/* Formulario de facturación */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="rfc" className="text-gray-700">RFC del receptor *</Label>
-                  <Input 
-                    id="rfc"
-                    value={rfcReceptor}
-                    onChange={(e) => setRfcReceptor(e.target.value)}
-                    placeholder="MOGP800516XS1"
-                    className="border-gray-300"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="cp" className="text-gray-700">Código Postal *</Label>
-                  <Input 
-                    id="cp"
-                    value={codigoPostal}
-                    onChange={(e) => setCodigoPostal(e.target.value)}
-                    placeholder="01234"
-                    className="border-gray-300"
-                  />
-                </div>
-              </div>
-
+            {/* Selector de datos de facturación */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <Label className="text-gray-700">Uso del CFDI *</Label>
-                <Select value={usoCfdi} onValueChange={setUsoCfdi}>
-                  <SelectTrigger className="border-gray-300">
-                    <SelectValue placeholder="G03 - Gastos en general" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="G01">G01 - Adquisición de mercancías</SelectItem>
-                    <SelectItem value="G02">G02 - Devoluciones, descuentos o bonificaciones</SelectItem>
-                    <SelectItem value="G03">G03 - Gastos en general</SelectItem>
-                    <SelectItem value="I01">I01 - Construcciones</SelectItem>
-                    <SelectItem value="I02">I02 - Mobilario y equipo de oficina</SelectItem>
-                    <SelectItem value="P01">P01 - Por definir</SelectItem>
-                  </SelectContent>
-                </Select>
+                <BillingDataSelector
+                  onDataSelected={handleBillingDataSelected}
+                  selectedData={selectedBillingData}
+                />
+                
+                {!useManualEntry && !selectedBillingData && (
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleManualEntry}
+                      className="w-full"
+                    >
+                      Ingresar datos manualmente
+                    </Button>
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-700">Método de pago *</Label>
-                  <Select value={metodoPago} onValueChange={setMetodoPago}>
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="PUE - Pago en una sola exhibición" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PUE">PUE - Pago en una sola exhibición</SelectItem>
-                      <SelectItem value="PPD">PPD - Pago en parcialidades o diferido</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-gray-700">Forma de pago *</Label>
-                  <Select value={formaPago} onValueChange={setFormaPago}>
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="03 - Transferencia electrónica de fondos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="01">01 - Efectivo</SelectItem>
-                      <SelectItem value="02">02 - Cheque nominativo</SelectItem>
-                      <SelectItem value="03">03 - Transferencia electrónica de fondos</SelectItem>
-                      <SelectItem value="04">04 - Tarjeta de crédito</SelectItem>
-                      <SelectItem value="28">28 - Tarjeta de débito</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              {/* Formulario manual o campos editables */}
+              {(useManualEntry || selectedBillingData) && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold">Datos de Facturación</h3>
+                    {selectedBillingData && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleManualEntry}
+                      >
+                        Editar manualmente
+                      </Button>
+                    )}
+                  </div>
 
-              <div>
-                <Label className="text-gray-700">Régimen fiscal del receptor *</Label>
-                <Select value={regimenFiscal} onValueChange={setRegimenFiscal}>
-                  <SelectTrigger className="border-gray-300">
-                    <SelectValue placeholder="601 - General de Ley Personas Morales" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="601">601 - General de Ley Personas Morales</SelectItem>
-                    <SelectItem value="603">603 - Personas Morales con Fines no Lucrativos</SelectItem>
-                    <SelectItem value="605">605 - Sueldos y Salarios e Ingresos Asimilados a Salarios</SelectItem>
-                    <SelectItem value="606">606 - Arrendamiento</SelectItem>
-                    <SelectItem value="612">612 - Personas Físicas con Actividades Empresariales y Profesionales</SelectItem>
-                    <SelectItem value="621">621 - Incorporación Fiscal</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="rfc" className="text-gray-700">RFC del receptor *</Label>
+                      <Input 
+                        id="rfc"
+                        value={rfcReceptor}
+                        onChange={(e) => setRfcReceptor(e.target.value)}
+                        placeholder="MOGP800516XS1"
+                        className="border-gray-300"
+                        disabled={!useManualEntry && selectedBillingData !== null}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="cp" className="text-gray-700">Código Postal *</Label>
+                      <Input 
+                        id="cp"
+                        value={codigoPostal}
+                        onChange={(e) => setCodigoPostal(e.target.value)}
+                        placeholder="01234"
+                        className="border-gray-300"
+                        disabled={!useManualEntry && selectedBillingData !== null}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-700">Uso del CFDI *</Label>
+                    <Select 
+                      value={usoCfdi} 
+                      onValueChange={setUsoCfdi}
+                      disabled={!useManualEntry && selectedBillingData !== null}
+                    >
+                      <SelectTrigger className="border-gray-300">
+                        <SelectValue placeholder="G03 - Gastos en general" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="G01">G01 - Adquisición de mercancías</SelectItem>
+                        <SelectItem value="G02">G02 - Devoluciones, descuentos o bonificaciones</SelectItem>
+                        <SelectItem value="G03">G03 - Gastos en general</SelectItem>
+                        <SelectItem value="I01">I01 - Construcciones</SelectItem>
+                        <SelectItem value="I02">I02 - Mobilario y equipo de oficina</SelectItem>
+                        <SelectItem value="P01">P01 - Por definir</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-gray-700">Método de pago *</Label>
+                      <Select 
+                        value={metodoPago} 
+                        onValueChange={setMetodoPago}
+                        disabled={!useManualEntry && selectedBillingData !== null}
+                      >
+                        <SelectTrigger className="border-gray-300">
+                          <SelectValue placeholder="PUE - Pago en una sola exhibición" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PUE">PUE - Pago en una sola exhibición</SelectItem>
+                          <SelectItem value="PPD">PPD - Pago en parcialidades o diferido</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-gray-700">Forma de pago *</Label>
+                      <Select 
+                        value={formaPago} 
+                        onValueChange={setFormaPago}
+                        disabled={!useManualEntry && selectedBillingData !== null}
+                      >
+                        <SelectTrigger className="border-gray-300">
+                          <SelectValue placeholder="03 - Transferencia electrónica de fondos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="01">01 - Efectivo</SelectItem>
+                          <SelectItem value="02">02 - Cheque nominativo</SelectItem>
+                          <SelectItem value="03">03 - Transferencia electrónica de fondos</SelectItem>
+                          <SelectItem value="04">04 - Tarjeta de crédito</SelectItem>
+                          <SelectItem value="28">28 - Tarjeta de débito</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-gray-700">Régimen fiscal del receptor *</Label>
+                    <Select 
+                      value={regimenFiscal} 
+                      onValueChange={setRegimenFiscal}
+                      disabled={!useManualEntry && selectedBillingData !== null}
+                    >
+                      <SelectTrigger className="border-gray-300">
+                        <SelectValue placeholder="601 - General de Ley Personas Morales" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="601">601 - General de Ley Personas Morales</SelectItem>
+                        <SelectItem value="603">603 - Personas Morales con Fines no Lucrativos</SelectItem>
+                        <SelectItem value="605">605 - Sueldos y Salarios e Ingresos Asimilados a Salarios</SelectItem>
+                        <SelectItem value="606">606 - Arrendamiento</SelectItem>
+                        <SelectItem value="612">612 - Personas Físicas con Actividades Empresariales y Profesionales</SelectItem>
+                        <SelectItem value="621">621 - Incorporación Fiscal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* CIF Uploader solo cuando sea entrada manual */}
+                  {useManualEntry && (
+                    <div>
+                      <CIFUploader onDataExtracted={handleCIFDataExtracted} />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-
-            {/* CIF Uploader */}
-            <CIFUploader onDataExtracted={handleCIFDataExtracted} />
 
             {/* Botones */}
             <div className="flex justify-end space-x-2 pt-4">
