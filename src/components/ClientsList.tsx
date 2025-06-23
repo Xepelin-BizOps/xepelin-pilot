@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Search, Building2, MapPin, FileText, Users, Phone, Mail, Plus, Eye, ChevronDown, UserPlus } from 'lucide-react';
+import { Search, Building2, MapPin, FileText, Users, Phone, Mail, Plus, Eye, ChevronDown, UserPlus, Edit } from 'lucide-react';
 import { Company } from '@/types/client';
 import { CreateClientForm } from '@/components/CreateClientForm';
 import { CreateContactForm } from '@/components/CreateContactForm';
@@ -159,6 +159,7 @@ export const ClientsList = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showCreateContactForm, setShowCreateContactForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -226,6 +227,26 @@ export const ClientsList = () => {
   const handleViewDetails = (company: Company) => {
     setSelectedCompany(company);
     setShowDetails(true);
+  };
+
+  const handleEditClient = (company: Company) => {
+    setSelectedCompany(company);
+    setShowEditForm(true);
+  };
+
+  const handleUpdateClient = (updatedCompany: Omit<Company, 'id' | 'createdAt' | 'lastContact'>) => {
+    if (!selectedCompany) return;
+    
+    const updated: Company = {
+      ...updatedCompany,
+      id: selectedCompany.id,
+      createdAt: selectedCompany.createdAt,
+      lastContact: new Date().toISOString().split('T')[0] // Update last contact
+    };
+    
+    setCompanies(companies.map(company => 
+      company.id === selectedCompany.id ? updated : company
+    ));
   };
 
   return (
@@ -325,15 +346,26 @@ export const ClientsList = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewDetails(company)}
-                            className="border-gray-300 text-gray-600 hover:bg-gray-50"
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Ver
-                          </Button>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleViewDetails(company)}
+                              className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Ver
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditClient(company)}
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Editar
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -492,6 +524,15 @@ export const ClientsList = () => {
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateClient}
+      />
+
+      {/* Edit Client Form */}
+      <CreateClientForm
+        open={showEditForm}
+        onOpenChange={setShowEditForm}
+        onSubmit={handleUpdateClient}
+        initialData={selectedCompany}
+        isEdit={true}
       />
 
       {/* Create Contact Form */}
