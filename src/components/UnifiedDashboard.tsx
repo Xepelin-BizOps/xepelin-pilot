@@ -58,7 +58,7 @@ export const UnifiedDashboard = () => {
         </div>
       </div>
       
-      <div className="flex justify-center">
+      <div className="flex justify-end">
         <ProductCatalog />
       </div>
     </div>
