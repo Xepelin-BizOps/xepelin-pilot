@@ -5,6 +5,7 @@ import { QuoteCreation } from '@/components/QuoteCreation';
 import { SalesOrders } from '@/components/SalesOrders';
 import { ClientHistoryPanel } from '@/components/ClientHistoryPanel';
 import { MassReminderPanel } from '@/components/MassReminderPanel';
+import { ProductCatalog } from '@/components/ProductCatalog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Toaster } from '@/components/ui/toaster';
@@ -28,6 +29,9 @@ const Index = () => {
                 className="h-8"
               />
               <span className="ml-3 text-sm text-gray-500">Gestión Comercial</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <ProductCatalog />
             </div>
           </div>
         </div>
