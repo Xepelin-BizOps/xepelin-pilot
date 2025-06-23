@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Building2, MapPin, FileText, Users, Phone, Mail, Plus, Eye } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Search, Building2, MapPin, FileText, Users, Phone, Mail, Plus, Eye, ChevronDown, UserPlus } from 'lucide-react';
 import { Company } from '@/types/client';
 import { CreateClientForm } from '@/components/CreateClientForm';
+import { CreateContactForm } from '@/components/CreateContactForm';
 
 // Mock data - en una aplicación real vendría de una API
 const mockCompanies: Company[] = [
@@ -156,6 +158,7 @@ export const ClientsList = () => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateContactForm, setShowCreateContactForm] = useState(false);
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -205,6 +208,21 @@ export const ClientsList = () => {
     setCompanies([...companies, company]);
   };
 
+  const handleCreateContact = (companyId: string, newContact: any) => {
+    setCompanies(companies.map(company => {
+      if (company.id === companyId) {
+        return {
+          ...company,
+          contacts: [...company.contacts, {
+            ...newContact,
+            id: `cont-${Date.now()}`
+          }]
+        };
+      }
+      return company;
+    }));
+  };
+
   const handleViewDetails = (company: Company) => {
     setSelectedCompany(company);
     setShowDetails(true);
@@ -219,13 +237,25 @@ export const ClientsList = () => {
               <Building2 className="h-5 w-5 mr-2" />
               Clientes ({filteredCompanies.length})
             </CardTitle>
-            <Button 
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => setShowCreateForm(true)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Cliente
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Crear
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowCreateForm(true)}>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Nuevo Cliente
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowCreateContactForm(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Nuevo Contacto
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
         <CardContent>
@@ -462,6 +492,14 @@ export const ClientsList = () => {
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateClient}
+      />
+
+      {/* Create Contact Form */}
+      <CreateContactForm
+        open={showCreateContactForm}
+        onOpenChange={setShowCreateContactForm}
+        companies={companies}
+        onSubmit={handleCreateContact}
       />
     </div>
   );
