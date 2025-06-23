@@ -32,7 +32,6 @@ export const UnifiedDashboard = () => {
               <SelectItem value="90days">Últimos 90 días</SelectItem>
             </SelectContent>
           </Select>
-          <ProductCatalog />
         </div>
       </div>
       
@@ -57,6 +56,10 @@ export const UnifiedDashboard = () => {
             </Card>
           ))}
         </div>
+      </div>
+      
+      <div className="flex justify-center">
+        <ProductCatalog />
       </div>
     </div>
   );
