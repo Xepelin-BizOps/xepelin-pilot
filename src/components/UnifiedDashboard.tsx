@@ -1,12 +1,15 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProductCatalog } from '@/components/ProductCatalog';
+import { ClientsList } from '@/components/ClientsList';
 import { Users } from 'lucide-react';
 
 export const UnifiedDashboard = () => {
   const [dateFilter, setDateFilter] = useState('30days');
+  const [showClientsList, setShowClientsList] = useState(false);
 
   const kpis = [
     { label: 'Total Cotizado', value: '$2,450,000', subtext: 'MXN', change: '+12%' },
@@ -59,12 +62,23 @@ export const UnifiedDashboard = () => {
       </div>
       
       <div className="flex justify-end gap-3">
-        <Button variant="outline" className="bg-white border-gray-300">
+        <Button 
+          variant="outline" 
+          className="bg-white border-gray-300"
+          onClick={() => setShowClientsList(!showClientsList)}
+        >
           <Users className="h-4 w-4 mr-2" />
           Clientes
         </Button>
         <ProductCatalog />
       </div>
+
+      {/* Clients List */}
+      {showClientsList && (
+        <div className="mt-6">
+          <ClientsList />
+        </div>
+      )}
     </div>
   );
 };
