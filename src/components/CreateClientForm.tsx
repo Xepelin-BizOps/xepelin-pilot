@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,9 +16,11 @@ interface CreateClientFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (company: Omit<Company, 'id' | 'createdAt' | 'lastContact'>) => void;
+  initialData?: Company | null;
+  isEdit?: boolean;
 }
 
-export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientFormProps) => {
+export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, isEdit = false }: CreateClientFormProps) => {
   const [addresses, setAddresses] = useState<Omit<Address, 'id'>[]>([
     { street: '', city: '', state: '', zipCode: '', country: 'México', type: 'main' }
   ]);
@@ -42,6 +44,62 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
       notes: ''
     }
   });
+
+  // Populate form when editing
+  useEffect(() => {
+    if (isEdit && initialData && open) {
+      form.reset({
+        name: initialData.name,
+        industry: initialData.industry,
+        size: initialData.size,
+        status: initialData.status,
+        businessName: initialData.billingData.businessName,
+        rfc: initialData.billingData.rfc,
+        taxRegime: initialData.billingData.taxRegime,
+        useCFDI: initialData.billingData.useCFDI,
+        email: initialData.billingData.email,
+        phone: initialData.billingData.phone,
+        notes: initialData.notes || ''
+      });
+
+      // Set addresses
+      setAddresses(initialData.addresses.map(addr => ({
+        street: addr.street,
+        city: addr.city,
+        state: addr.state,
+        zipCode: addr.zipCode,
+        country: addr.country,
+        type: addr.type
+      })));
+
+      // Set contacts
+      setContacts(initialData.contacts.map(contact => ({
+        name: contact.name,
+        position: contact.position,
+        email: contact.email,
+        phone: contact.phone,
+        whatsapp: contact.whatsapp || '',
+        isPrimary: contact.isPrimary
+      })));
+    } else if (!isEdit && open) {
+      // Reset form for new client
+      form.reset({
+        name: '',
+        industry: '',
+        size: 'small' as const,
+        status: 'prospect' as const,
+        businessName: '',
+        rfc: '',
+        taxRegime: '',
+        useCFDI: 'G03 - Gastos en general',
+        email: '',
+        phone: '',
+        notes: ''
+      });
+      setAddresses([{ street: '', city: '', state: '', zipCode: '', country: 'México', type: 'main' }]);
+      setContacts([{ name: '', position: '', email: '', phone: '', whatsapp: '', isPrimary: true }]);
+    }
+  }, [isEdit, initialData, open, form]);
 
   const addAddress = () => {
     setAddresses([...addresses, { street: '', city: '', state: '', zipCode: '', country: 'México', type: 'shipping' }]);
@@ -91,10 +149,10 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
       status: data.status,
       addresses: addresses.map((addr, index) => ({
         ...addr,
-        id: `temp-addr-${index}`
+        id: isEdit && initialData ? initialData.addresses[index]?.id || `temp-addr-${index}` : `temp-addr-${index}`
       })),
       billingData: {
-        id: 'temp-billing',
+        id: isEdit && initialData ? initialData.billingData.id : 'temp-billing',
         businessName: data.businessName || data.name,
         rfc: data.rfc,
         taxRegime: data.taxRegime,
@@ -104,16 +162,13 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
       },
       contacts: contacts.map((contact, index) => ({
         ...contact,
-        id: `temp-contact-${index}`
+        id: isEdit && initialData ? initialData.contacts[index]?.id || `temp-contact-${index}` : `temp-contact-${index}`
       })),
       notes: data.notes
     };
 
     onSubmit(newCompany);
     onOpenChange(false);
-    form.reset();
-    setAddresses([{ street: '', city: '', state: '', zipCode: '', country: 'México', type: 'main' }]);
-    setContacts([{ name: '', position: '', email: '', phone: '', whatsapp: '', isPrimary: true }]);
   };
 
   return (
@@ -121,7 +176,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
       <DialogContent className="max-w-4xl bg-white border border-gray-200 rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900">
-            Crear Nuevo Cliente
+            {isEdit ? 'Editar Cliente' : 'Crear Nuevo Cliente'}
           </DialogTitle>
         </DialogHeader>
 
@@ -171,7 +226,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tamaño de Empresa</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue />
@@ -194,7 +249,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Estado</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue />
@@ -444,7 +499,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
                         onChange={(e) => updateContact(index, 'phone', e.target.value)}
                       />
                       <Input
-                        placeholder="WhatsApp (opcional)"
+                        placeholder="WhatsApp"
                         value={contact.whatsapp}
                         onChange={(e) => updateContact(index, 'whatsapp', e.target.value)}
                       />
@@ -485,7 +540,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit }: CreateClientF
                 Cancelar
               </Button>
               <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                Crear Cliente
+                {isEdit ? 'Actualizar Cliente' : 'Crear Cliente'}
               </Button>
             </div>
           </form>
