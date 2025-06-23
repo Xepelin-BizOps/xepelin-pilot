@@ -364,28 +364,25 @@ export const ProductCatalog = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleViewProduct(item)}
-                                className="border-green-300 text-green-600 hover:bg-green-50"
+                                className="border-green-300 text-green-600 hover:bg-green-50 p-2"
                               >
-                                <Eye className="h-4 w-4 mr-1" />
-                                Ver
+                                <Eye className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleEditProduct(item)}
-                                className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                                className="border-blue-300 text-blue-600 hover:bg-blue-50 p-2"
                               >
-                                <Edit className="h-4 w-4 mr-1" />
-                                Editar
+                                <Edit className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleDeleteProduct(item.id)}
-                                className="border-red-300 text-red-600 hover:bg-red-50"
+                                className="border-red-300 text-red-600 hover:bg-red-50 p-2"
                               >
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                Eliminar
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
