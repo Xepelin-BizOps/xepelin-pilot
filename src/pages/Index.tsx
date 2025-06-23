@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { UnifiedDashboard } from '@/components/UnifiedDashboard';
 import { QuoteCreation } from '@/components/QuoteCreation';
 import { SalesOrders } from '@/components/SalesOrders';
-import { ProductCatalog } from '@/components/ProductCatalog';
 import { ClientHistoryPanel } from '@/components/ClientHistoryPanel';
 import { MassReminderPanel } from '@/components/MassReminderPanel';
 import { Button } from '@/components/ui/button';
@@ -44,7 +43,7 @@ const Index = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-lg p-1">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-lg p-1">
             <TabsTrigger 
               value="quotes" 
               className="data-[state=active]:bg-white data-[state=active]:text-blue-600 rounded-md"
@@ -56,12 +55,6 @@ const Index = () => {
               className="data-[state=active]:bg-white data-[state=active]:text-blue-600 rounded-md"
             >
               Órdenes de Venta
-            </TabsTrigger>
-            <TabsTrigger 
-              value="catalog" 
-              className="data-[state=active]:bg-white data-[state=active]:text-blue-600 rounded-md"
-            >
-              Catálogo
             </TabsTrigger>
           </TabsList>
           
@@ -78,10 +71,6 @@ const Index = () => {
               onClientClick={setSelectedClient}
               onShowReminderPanel={() => setShowReminderPanel(true)}
             />
-          </TabsContent>
-
-          <TabsContent value="catalog" className="mt-6">
-            <ProductCatalog />
           </TabsContent>
         </Tabs>
       </div>
