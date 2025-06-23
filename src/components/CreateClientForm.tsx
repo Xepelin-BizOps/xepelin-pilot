@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -33,8 +32,8 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
     defaultValues: {
       name: '',
       industry: '',
-      size: 'small' as const,
-      status: 'prospect' as const,
+      size: 'small',
+      status: 'prospect',
       businessName: '',
       rfc: '',
       taxRegime: '',
@@ -86,8 +85,8 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
       form.reset({
         name: '',
         industry: '',
-        size: 'small' as const,
-        status: 'prospect' as const,
+        size: 'small',
+        status: 'prospect',
         businessName: '',
         rfc: '',
         taxRegime: '',
