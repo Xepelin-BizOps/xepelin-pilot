@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
@@ -8,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, FileSpreadsheet, Download, Upload } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Plus, Edit, Trash2, FileSpreadsheet, Download, Upload, Search, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Product {
@@ -22,6 +22,10 @@ interface Product {
 
 export const ProductCatalog = () => {
   const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  
   const [products, setProducts] = useState<Product[]>([
     { id: '1', name: 'Producto A', description: 'Descripción del producto A', price: 1000, category: 'Categoría 1', type: 'product' },
     { id: '2', name: 'Servicio B', description: 'Descripción del servicio B', price: 2500, category: 'Categoría 2', type: 'service' },
@@ -37,6 +41,22 @@ export const ProductCatalog = () => {
     category: '',
     type: 'product' as 'product' | 'service'
   });
+
+  // Filter products based on search term
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm) return products;
+    
+    return products.filter(product => 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [products, searchTerm]);
+
+  const handleViewProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setIsViewDialogOpen(true);
+  };
 
   const handleAddProduct = () => {
     if (!formData.name || !formData.price) {
@@ -150,8 +170,8 @@ export const ProductCatalog = () => {
     });
   };
 
-  const productCount = products.filter(p => p.type === 'product').length;
-  const serviceCount = products.filter(p => p.type === 'service').length;
+  const productCount = filteredProducts.filter(p => p.type === 'product').length;
+  const serviceCount = filteredProducts.filter(p => p.type === 'service').length;
 
   return (
     <div className="space-y-4">
@@ -160,7 +180,7 @@ export const ProductCatalog = () => {
           <CardTitle className="text-lg font-semibold text-gray-900 flex items-center justify-between">
             <div className="flex items-center">
               <FileSpreadsheet className="h-5 w-5 mr-2" />
-              Catálogo de Productos y Servicios ({products.length})
+              Catálogo de Productos y Servicios ({filteredProducts.length})
             </div>
             <div className="flex gap-2">
               <Badge variant="secondary">{productCount} Productos</Badge>
@@ -277,10 +297,41 @@ export const ProductCatalog = () => {
               </CardContent>
             </Card>
 
+            {/* Barra de búsqueda */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-2">
+                  <Search className="h-4 w-4 text-gray-500" />
+                  <Input
+                    placeholder="Buscar productos por nombre, descripción o categoría..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="flex-1"
+                  />
+                  {searchTerm && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setSearchTerm('')}
+                    >
+                      Limpiar
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Lista unificada de productos y servicios */}
             <Card>
               <CardHeader>
-                <CardTitle>Catálogo Completo</CardTitle>
+                <CardTitle>
+                  Catálogo Completo
+                  {searchTerm && (
+                    <span className="text-sm font-normal text-gray-500 ml-2">
+                      - Mostrando {filteredProducts.length} resultados para "{searchTerm}"
+                    </span>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -296,7 +347,7 @@ export const ProductCatalog = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.map((item) => (
+                      {filteredProducts.map((item) => (
                         <TableRow key={item.id} className="hover:bg-gray-50">
                           <TableCell>
                             <Badge variant={item.type === 'product' ? 'default' : 'secondary'}>
@@ -304,11 +355,20 @@ export const ProductCatalog = () => {
                             </Badge>
                           </TableCell>
                           <TableCell className="font-medium">{item.name}</TableCell>
-                          <TableCell>{item.description}</TableCell>
+                          <TableCell className="max-w-xs truncate">{item.description}</TableCell>
                           <TableCell>${item.price.toLocaleString()}</TableCell>
                           <TableCell>{item.category}</TableCell>
                           <TableCell>
                             <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewProduct(item)}
+                                className="border-green-300 text-green-600 hover:bg-green-50"
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                Ver
+                              </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -334,9 +394,12 @@ export const ProductCatalog = () => {
                     </TableBody>
                   </Table>
 
-                  {products.length === 0 && (
+                  {filteredProducts.length === 0 && (
                     <div className="p-8 text-center text-gray-500">
-                      No hay productos registrados
+                      {searchTerm ? 
+                        `No se encontraron productos que coincidan con "${searchTerm}"` : 
+                        'No hay productos registrados'
+                      }
                     </div>
                   )}
                 </div>
@@ -345,6 +408,74 @@ export const ProductCatalog = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal para ver detalles del producto */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Eye className="h-5 w-5 mr-2" />
+              Detalles del {selectedProduct?.type === 'product' ? 'Producto' : 'Servicio'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedProduct && (
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium text-gray-600">Tipo</Label>
+                <div className="mt-1">
+                  <Badge variant={selectedProduct.type === 'product' ? 'default' : 'secondary'}>
+                    {selectedProduct.type === 'product' ? 'Producto' : 'Servicio'}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-600">Nombre</Label>
+                <p className="mt-1 text-sm text-gray-900 font-medium">{selectedProduct.name}</p>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-600">Descripción</Label>
+                <p className="mt-1 text-sm text-gray-900">{selectedProduct.description || 'Sin descripción'}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Precio</Label>
+                  <p className="mt-1 text-lg font-bold text-green-600">${selectedProduct.price.toLocaleString()}</p>
+                </div>
+                
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">Categoría</Label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedProduct.category || 'Sin categoría'}</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    handleEditProduct(selectedProduct);
+                    setIsViewDialogOpen(false);
+                  }}
+                  className="flex-1"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsViewDialogOpen(false)}
+                  className="flex-1"
+                >
+                  Cerrar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
