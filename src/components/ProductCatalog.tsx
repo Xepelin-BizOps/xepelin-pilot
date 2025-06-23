@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, FileSpreadsheet, Download, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,6 +27,8 @@ export const ProductCatalog = () => {
   const [products, setProducts] = useState<Product[]>([
     { id: '1', name: 'Producto A', description: 'Descripción del producto A', price: 1000, category: 'Categoría 1', type: 'product' },
     { id: '2', name: 'Servicio B', description: 'Descripción del servicio B', price: 2500, category: 'Categoría 2', type: 'service' },
+    { id: '3', name: 'Producto C', description: 'Descripción del producto C', price: 1500, category: 'Categoría 1', type: 'product' },
+    { id: '4', name: 'Servicio D', description: 'Descripción del servicio D', price: 3000, category: 'Categoría 3', type: 'service' },
   ]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -168,8 +170,8 @@ export const ProductCatalog = () => {
     });
   };
 
-  const productList = products.filter(p => p.type === 'product');
-  const serviceList = products.filter(p => p.type === 'service');
+  const productCount = products.filter(p => p.type === 'product').length;
+  const serviceCount = products.filter(p => p.type === 'service').length;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -314,111 +316,65 @@ export const ProductCatalog = () => {
             </CardContent>
           </Card>
 
-          {/* Lista de productos y servicios */}
-          <Tabs defaultValue="products" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="products">Productos ({productList.length})</TabsTrigger>
-              <TabsTrigger value="services">Servicios ({serviceList.length})</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="products">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Lista de Productos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead>Descripción</TableHead>
-                        <TableHead>Precio</TableHead>
-                        <TableHead>Categoría</TableHead>
-                        <TableHead>Acciones</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {productList.map((product) => (
-                        <TableRow key={product.id}>
-                          <TableCell className="font-medium">{product.name}</TableCell>
-                          <TableCell>{product.description}</TableCell>
-                          <TableCell>${product.price.toLocaleString()}</TableCell>
-                          <TableCell>{product.category}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditProduct(product)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteProduct(product.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="services">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Lista de Servicios</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead>Descripción</TableHead>
-                        <TableHead>Precio</TableHead>
-                        <TableHead>Categoría</TableHead>
-                        <TableHead>Acciones</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {serviceList.map((service) => (
-                        <TableRow key={service.id}>
-                          <TableCell className="font-medium">{service.name}</TableCell>
-                          <TableCell>{service.description}</TableCell>
-                          <TableCell>${service.price.toLocaleString()}</TableCell>
-                          <TableCell>{service.category}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleEditProduct(service)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteProduct(service.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          {/* Lista unificada de productos y servicios */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Catálogo Completo</span>
+                <div className="flex gap-2">
+                  <Badge variant="secondary">{productCount} Productos</Badge>
+                  <Badge variant="outline">{serviceCount} Servicios</Badge>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Descripción</TableHead>
+                    <TableHead>Precio</TableHead>
+                    <TableHead>Categoría</TableHead>
+                    <TableHead>Acciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        <Badge variant={item.type === 'product' ? 'default' : 'secondary'}>
+                          {item.type === 'product' ? 'Producto' : 'Servicio'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">{item.name}</TableCell>
+                      <TableCell>{item.description}</TableCell>
+                      <TableCell>${item.price.toLocaleString()}</TableCell>
+                      <TableCell>{item.category}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditProduct(item)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteProduct(item.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Dialog para editar producto */}
@@ -455,6 +411,18 @@ export const ProductCatalog = () => {
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   className="col-span-3"
                 />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-type" className="text-right">Tipo</Label>
+                <Select value={formData.type} onValueChange={(value) => setFormData({...formData, type: value as 'product' | 'service'})}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="product">Producto</SelectItem>
+                    <SelectItem value="service">Servicio</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-description" className="text-right">Descripción</Label>
