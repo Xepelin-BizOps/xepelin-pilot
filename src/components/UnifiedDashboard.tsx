@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ProductCatalog } from '@/components/ProductCatalog';
 
 export const UnifiedDashboard = () => {
   const [dateFilter, setDateFilter] = useState('30days');
@@ -19,17 +20,20 @@ export const UnifiedDashboard = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-gray-900">Panel de Control</h2>
-        <Select value={dateFilter} onValueChange={setDateFilter}>
-          <SelectTrigger className="w-40 bg-white border-gray-300 rounded-lg">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
-            <SelectItem value="7days">Últimos 7 días</SelectItem>
-            <SelectItem value="30days">Últimos 30 días</SelectItem>
-            <SelectItem value="thismonth">Este mes</SelectItem>
-            <SelectItem value="90days">Últimos 90 días</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center space-x-3">
+          <Select value={dateFilter} onValueChange={setDateFilter}>
+            <SelectTrigger className="w-40 bg-white border-gray-300 rounded-lg">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+              <SelectItem value="7days">Últimos 7 días</SelectItem>
+              <SelectItem value="30days">Últimos 30 días</SelectItem>
+              <SelectItem value="thismonth">Este mes</SelectItem>
+              <SelectItem value="90days">Últimos 90 días</SelectItem>
+            </SelectContent>
+          </Select>
+          <ProductCatalog />
+        </div>
       </div>
       
       <div className="flex justify-center">
