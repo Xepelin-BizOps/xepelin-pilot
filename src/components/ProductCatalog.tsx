@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -32,7 +31,6 @@ export const ProductCatalog = () => {
   ]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -124,22 +122,6 @@ export const ProductCatalog = () => {
     }
   };
 
-  const handleDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-    setIsDragOver(false);
-    
-    const file = event.dataTransfer.files[0];
-    if (file && (file.type.includes('sheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls'))) {
-      processExcelFile(file);
-    } else {
-      toast({
-        title: "Error",
-        description: "Por favor selecciona un archivo Excel válido",
-        variant: "destructive"
-      });
-    }
-  };
-
   const processExcelFile = (file: File) => {
     // Simulación del procesamiento de Excel
     toast({
@@ -187,66 +169,6 @@ export const ProductCatalog = () => {
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Carga masiva de Excel */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Carga Masiva de Excel</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div
-                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                    isDragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300'
-                  }`}
-                  onDrop={handleDrop}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(true);
-                  }}
-                  onDragLeave={() => setIsDragOver(false)}
-                >
-                  <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <p className="text-sm text-gray-600 mb-4">
-                    Arrastra tu archivo Excel aquí o haz clic para seleccionar
-                  </p>
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="excel-upload"
-                  />
-                  <label htmlFor="excel-upload">
-                    <Button variant="outline" className="cursor-pointer">
-                      Seleccionar Archivo
-                    </Button>
-                  </label>
-                </div>
-                
-                <div className="space-y-4">
-                  <Button 
-                    variant="outline" 
-                    onClick={downloadTemplate}
-                    className="w-full"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Descargar Plantilla
-                  </Button>
-                  <div className="text-sm text-gray-600">
-                    <p className="font-medium mb-2">Formato esperado:</p>
-                    <ul className="list-disc list-inside space-y-1">
-                      <li>Nombre (requerido)</li>
-                      <li>Descripción</li>
-                      <li>Precio (requerido)</li>
-                      <li>Categoría</li>
-                      <li>Tipo (product/service)</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Formulario para agregar producto/servicio */}
           <Card>
             <CardHeader>
@@ -309,10 +231,33 @@ export const ProductCatalog = () => {
                 </div>
               </div>
               
-              <Button onClick={handleAddProduct} className="mt-4">
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Item
-              </Button>
+              <div className="flex gap-3 mt-4">
+                <Button onClick={handleAddProduct}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar Item
+                </Button>
+                
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="excel-upload"
+                />
+                <label htmlFor="excel-upload">
+                  <Button variant="outline" className="cursor-pointer" asChild>
+                    <span>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Subir Excel
+                    </span>
+                  </Button>
+                </label>
+                
+                <Button variant="outline" onClick={downloadTemplate}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar Plantilla
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
