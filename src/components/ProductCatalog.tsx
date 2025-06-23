@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus, Edit, Trash2, Upload, Download, FileExcel } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Upload, Download, FileSpreadsheet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Product {
@@ -243,7 +242,7 @@ export const ProductCatalog: React.FC = () => {
               onClick={exportCatalog}
               className="border-gray-300 text-gray-600 hover:bg-gray-50"
             >
-              <FileExcel className="w-4 h-4 mr-2" />
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
               Exportar
             </Button>
             <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
