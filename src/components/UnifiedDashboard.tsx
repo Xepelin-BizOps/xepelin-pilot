@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProductCatalog } from '@/components/ProductCatalog';
 import { ClientsList } from '@/components/ClientsList';
-import { Users } from 'lucide-react';
+import { Users, FileSpreadsheet } from 'lucide-react';
 
 export const UnifiedDashboard = () => {
   const [dateFilter, setDateFilter] = useState('30days');
   const [showClientsList, setShowClientsList] = useState(false);
+  const [showProductCatalog, setShowProductCatalog] = useState(false);
 
   const kpis = [
     { label: 'Total Cotizado', value: '$2,450,000', subtext: 'MXN', change: '+12%' },
@@ -70,13 +71,27 @@ export const UnifiedDashboard = () => {
           <Users className="h-4 w-4 mr-2" />
           Clientes
         </Button>
-        <ProductCatalog />
+        <Button 
+          variant="outline" 
+          className="bg-white border-gray-300"
+          onClick={() => setShowProductCatalog(!showProductCatalog)}
+        >
+          <FileSpreadsheet className="h-4 w-4 mr-2" />
+          Catálogo de Productos
+        </Button>
       </div>
 
       {/* Clients List */}
       {showClientsList && (
         <div className="mt-6">
           <ClientsList />
+        </div>
+      )}
+
+      {/* Product Catalog */}
+      {showProductCatalog && (
+        <div className="mt-6">
+          <ProductCatalog />
         </div>
       )}
     </div>
