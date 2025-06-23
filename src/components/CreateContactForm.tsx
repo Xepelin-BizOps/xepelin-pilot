@@ -152,7 +152,7 @@ export const CreateContactForm = ({ open, onOpenChange, companies, onSubmit }: C
                     name="whatsapp"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>WhatsApp (opcional)</FormLabel>
+                        <FormLabel>WhatsApp *</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="+52 55 1234 5678" />
                         </FormControl>
