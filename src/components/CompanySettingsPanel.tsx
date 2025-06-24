@@ -18,6 +18,8 @@ export const CompanySettingsPanel = ({ isOpen, onClose }: CompanySettingsPanelPr
     name: '',
     address: '',
     rfc: '',
+    email: '',
+    phone: '',
     password: ''
   });
 
@@ -90,6 +92,34 @@ export const CompanySettingsPanel = ({ isOpen, onClose }: CompanySettingsPanelPr
                   value={companyData.rfc}
                   onChange={(e) => handleInputChange('rfc', e.target.value)}
                   placeholder="RFC de la empresa"
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Datos de contacto */}
+          <Card className="p-4">
+            <h3 className="text-lg font-semibold mb-4">Datos de Contacto</h3>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="company-email">Correo Electrónico</Label>
+                <Input
+                  id="company-email"
+                  type="email"
+                  value={companyData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="correo@empresa.com"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="company-phone">Teléfono</Label>
+                <Input
+                  id="company-phone"
+                  type="tel"
+                  value={companyData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="(55) 1234-5678"
                 />
               </div>
             </div>
