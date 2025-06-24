@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProductCatalog } from '@/components/ProductCatalog';
 import { ClientsList } from '@/components/ClientsList';
-import { Users, FileSpreadsheet } from 'lucide-react';
+import { Users, FileSpreadsheet, X } from 'lucide-react';
 
 export const UnifiedDashboard = () => {
   const [dateFilter, setDateFilter] = useState('30days');
@@ -83,7 +82,18 @@ export const UnifiedDashboard = () => {
 
       {/* Clients List */}
       {showClientsList && (
-        <div className="mt-6">
+        <div className="mt-6 relative">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Lista de Clientes</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowClientsList(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <ClientsList />
         </div>
       )}
