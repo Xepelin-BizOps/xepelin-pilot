@@ -1,16 +1,17 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProductCatalog } from '@/components/ProductCatalog';
 import { ClientsList } from '@/components/ClientsList';
-import { Users, FileSpreadsheet, X } from 'lucide-react';
+import { CompanySettingsPanel } from '@/components/CompanySettingsPanel';
+import { Users, FileSpreadsheet, X, Settings } from 'lucide-react';
 
 export const UnifiedDashboard = () => {
   const [dateFilter, setDateFilter] = useState('30days');
   const [showClientsList, setShowClientsList] = useState(false);
   const [showProductCatalog, setShowProductCatalog] = useState(false);
+  const [showCompanySettings, setShowCompanySettings] = useState(false);
 
   const kpis = [
     { label: 'Total Cotizado', value: '$2,450,000', subtext: 'MXN', change: '+12%' },
@@ -79,6 +80,14 @@ export const UnifiedDashboard = () => {
           <FileSpreadsheet className="h-4 w-4 mr-2" />
           Catálogo de Productos
         </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="bg-white border-gray-300 px-3"
+          onClick={() => setShowCompanySettings(true)}
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Clients List */}
@@ -116,6 +125,12 @@ export const UnifiedDashboard = () => {
           <ProductCatalog />
         </div>
       )}
+
+      {/* Company Settings Panel */}
+      <CompanySettingsPanel 
+        isOpen={showCompanySettings}
+        onClose={() => setShowCompanySettings(false)}
+      />
     </div>
   );
 };
