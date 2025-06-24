@@ -19,6 +19,7 @@ const mockCompanies: Company[] = [
     industry: 'Tecnología',
     size: 'medium',
     status: 'active',
+    clientType: 'persona_moral',
     createdAt: '2024-01-15',
     lastContact: '2024-06-20',
     addresses: [
@@ -77,6 +78,7 @@ const mockCompanies: Company[] = [
     industry: 'Software',
     size: 'large',
     status: 'active',
+    clientType: 'persona_moral',
     createdAt: '2024-02-20',
     lastContact: '2024-06-22',
     addresses: [
@@ -117,6 +119,7 @@ const mockCompanies: Company[] = [
     industry: 'Consultoría',
     size: 'small',
     status: 'prospect',
+    clientType: 'persona_moral',
     createdAt: '2024-03-10',
     lastContact: '2024-06-18',
     addresses: [
