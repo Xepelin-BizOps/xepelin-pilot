@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
 import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
-import { MoreHorizontal, FileText, Link, Send, BarChart3, Eye } from 'lucide-react';
+import { MoreHorizontal, FileText, Link, Send, BarChart3 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -240,8 +239,8 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <Card className="border-0 shadow-sm rounded-lg overflow-hidden">
-          <CardHeader className="border-b border-gray-100 bg-white">
+        <Card>
+          <CardHeader>
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">Órdenes de Venta</h3>
               <div className="flex space-x-2">
@@ -261,7 +260,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                 </Button>
                 <Input 
                   placeholder="Buscar órdenes..." 
-                  className="w-64 border-gray-200"
+                  className="w-64"
                 />
               </div>
             </div>
@@ -269,7 +268,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
           
           <CardContent className="p-0">
             {selectedOrders.length > 0 && (
-              <div className="p-6 border-b bg-blue-50">
+              <div className="p-6 border-b">
                 <Button 
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={handleMassReminders}
@@ -280,174 +279,142 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
               </div>
             )}
 
-            <div className="bg-white rounded-lg overflow-hidden">
-              <Table className="border-separate border-spacing-0">
-                <TableHeader>
-                  <TableRow className="border-b border-gray-100 hover:bg-transparent">
-                    <TableHead className="w-12 py-4 first:rounded-tl-lg">
-                      <input 
-                        type="checkbox" 
-                        className="rounded border-gray-300"
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedOrders(orders.filter(o => o.pending > 0).map(o => o.id));
-                          } else {
-                            setSelectedOrders([]);
-                          }
-                        }}
-                      />
-                    </TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm">ID</TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm">Cliente</TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm">Fecha</TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm">Productos</TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm">Monto</TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm">Estado</TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm last:rounded-tr-lg">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orders.map((order, index) => (
-                    <TableRow key={order.id} className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${index === orders.length - 1 ? 'last:border-b-0' : ''}`}>
-                      <TableCell className={`py-4 ${index === orders.length - 1 ? 'first:rounded-bl-lg' : ''}`}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-400"
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedOrders(orders.filter(o => o.pending > 0).map(o => o.id));
+                        } else {
+                          setSelectedOrders([]);
+                        }
+                      }}
+                    />
+                  </TableHead>
+                  <TableHead>ID Orden</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Ref. Cotización</TableHead>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Monto Total</TableHead>
+                  <TableHead>Pagado</TableHead>
+                  <TableHead>Pendiente</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell>
+                      {order.pending > 0 && (
+                        <input 
+                          type="checkbox" 
+                          className="rounded border-gray-400"
+                          checked={selectedOrders.includes(order.id)}
+                          onChange={() => toggleOrderSelection(order.id)}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium text-blue-600">{order.id}</TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => handleClientClick(order.client)}
+                        className="text-gray-900 hover:text-blue-600 transition-colors"
+                      >
+                        {order.client}
+                      </button>
+                    </TableCell>
+                    <TableCell className="text-gray-700">{order.quoteRef}</TableCell>
+                    <TableCell className="text-gray-700">{order.date}</TableCell>
+                    <TableCell className="font-semibold text-gray-900">${order.amount.toLocaleString()}</TableCell>
+                    <TableCell className="text-blue-600 font-medium">${order.paid.toLocaleString()}</TableCell>
+                    <TableCell className="text-gray-600 font-medium">${order.pending.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant="secondary"
+                        className={
+                          order.status === 'Pagado' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                          'bg-gray-200 text-gray-700 border-gray-300'
+                        }
+                      >
+                        {order.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <InvoiceDropdown 
+                              order={order} 
+                              onInvoiceClick={handleInvoiceClick}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{order.isInvoiced ? 'Opciones de Factura' : 'Facturar'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        
                         {order.pending > 0 && (
-                          <input 
-                            type="checkbox" 
-                            className="rounded border-gray-300"
-                            checked={selectedOrders.includes(order.id)}
-                            onChange={() => toggleOrderSelection(order.id)}
-                          />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="border-blue-400 text-blue-600 hover:bg-blue-50"
+                                onClick={() => handlePaymentLinkClick(order)}
+                              >
+                                <Link className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Link de Pago</p>
+                            </TooltipContent>
+                          </Tooltip>
                         )}
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <span className="font-medium text-blue-600 text-sm">{order.id}</span>
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <button
-                          onClick={() => handleClientClick(order.client)}
-                          className="text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium"
-                        >
-                          {order.client}
-                        </button>
-                      </TableCell>
-                      <TableCell className="py-4 text-gray-700 text-sm">{order.date}</TableCell>
-                      <TableCell className="py-4 text-gray-700 text-sm">
-                        {Math.floor(Math.random() * 5) + 1} ítems
-                      </TableCell>
-                      <TableCell className="py-4 font-semibold text-gray-900 text-sm">
-                        ${order.amount.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <Badge 
-                          variant="secondary"
-                          className={
-                            order.status === 'Pagado' 
-                              ? 'bg-green-50 text-green-700 border-green-200 font-medium text-xs px-2 py-1' :
-                              order.status === 'Pendiente'
-                              ? 'bg-yellow-50 text-yellow-700 border-yellow-200 font-medium text-xs px-2 py-1' :
-                              'bg-red-50 text-red-700 border-red-200 font-medium text-xs px-2 py-1'
-                          }
-                        >
-                          {order.status === 'Pagado' ? 'Confirmada' : 
-                           order.status === 'Pendiente' ? 'En Revisión' : 'Rechazada'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className={`py-4 ${index === orders.length - 1 ? 'last:rounded-br-lg' : ''}`}>
-                        <div className="flex items-center gap-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Ver detalles</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                                onClick={() => handleInvoiceClick(order)}
-                              >
-                                <FileText className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Facturar</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          
-                          {order.pending > 0 && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                                  onClick={() => handlePaymentLinkClick(order)}
-                                >
-                                  <Link className="w-4 h-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Link de pago</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                          
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                                onClick={() => handleSendMessage(order)}
-                              >
-                                <Send className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Enviar mensaje</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                              >
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-white border border-gray-200 rounded-lg shadow-lg">
-                              <DropdownMenuItem className="hover:bg-gray-50 text-gray-700 text-sm">Ver Detalles</DropdownMenuItem>
-                              <DropdownMenuItem className="hover:bg-gray-50 text-gray-700 text-sm">Editar Contacto</DropdownMenuItem>
-                              <DropdownMenuItem className="hover:bg-gray-50 text-gray-700 text-sm">Descargar PDF</DropdownMenuItem>
-                              {!order.hasCFDI && (
-                                <DropdownMenuItem className="hover:bg-gray-50 text-gray-700 text-sm">Generar CFDI</DropdownMenuItem>
-                              )}
-                              {!order.paymentLink && order.pending > 0 && (
-                                <DropdownMenuItem className="hover:bg-gray-50 text-gray-700 text-sm">Crear Link de Pago</DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              onClick={() => handleSendMessage(order)}
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Enviar Mensaje</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline" className="border-gray-400 text-gray-600 hover:bg-gray-50">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg">
+                            <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Ver Detalles</DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Editar Contacto</DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Descargar PDF</DropdownMenuItem>
+                            {!order.hasCFDI && (
+                              <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Generar CFDI</DropdownMenuItem>
+                            )}
+                            {!order.paymentLink && order.pending > 0 && (
+                              <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Crear Link de Pago</DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 

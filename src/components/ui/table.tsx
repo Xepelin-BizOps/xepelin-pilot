@@ -1,5 +1,4 @@
 
-
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -11,7 +10,7 @@ const Table = React.forwardRef<
   <div className="relative w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm border-collapse rounded-lg overflow-hidden", className)}
+      className={cn("w-full caption-bottom text-sm border-collapse border border-gray-200 rounded-lg overflow-hidden", className)}
       {...props}
     />
   </div>
@@ -95,7 +94,7 @@ const TableCell = React.forwardRef<
 ))
 TableCell.displayName = "TableCell"
 
-const TableCaption = React.forwardrer<
+const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
   React.HTMLAttributes<HTMLTableCaptionElement>
 >(({ className, ...props }, ref) => (
@@ -117,4 +116,3 @@ export {
   TableCell,
   TableCaption,
 }
-
