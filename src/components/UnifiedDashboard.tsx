@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -100,7 +101,18 @@ export const UnifiedDashboard = () => {
 
       {/* Product Catalog */}
       {showProductCatalog && (
-        <div className="mt-6">
+        <div className="mt-6 relative">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Catálogo de Productos</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowProductCatalog(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
           <ProductCatalog />
         </div>
       )}
