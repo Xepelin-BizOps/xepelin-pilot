@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useForm } from 'react-hook-form';
-import { Building2, MapPin, Users, FileText, Plus, Trash2 } from 'lucide-react';
+import { Building2, MapPin, Users, FileText, Plus, Trash2, User } from 'lucide-react';
 import { Company, Address, Contact, BillingData } from '@/types/client';
 
 interface CreateClientFormProps {
@@ -34,6 +35,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
       industry: '',
       size: 'small',
       status: 'prospect',
+      clientType: 'persona_moral',
       businessName: '',
       rfc: '',
       taxRegime: '',
@@ -44,6 +46,8 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
     }
   });
 
+  const clientType = form.watch('clientType');
+
   // Populate form when editing
   useEffect(() => {
     if (isEdit && initialData && open) {
@@ -52,6 +56,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
         industry: initialData.industry,
         size: initialData.size,
         status: initialData.status,
+        clientType: initialData.clientType || 'persona_moral',
         businessName: initialData.billingData.businessName,
         rfc: initialData.billingData.rfc,
         taxRegime: initialData.billingData.taxRegime,
@@ -87,6 +92,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
         industry: '',
         size: 'small',
         status: 'prospect',
+        clientType: 'persona_moral',
         businessName: '',
         rfc: '',
         taxRegime: '',
@@ -146,6 +152,7 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
       industry: data.industry,
       size: data.size,
       status: data.status,
+      clientType: data.clientType,
       addresses: addresses.map((addr, index) => ({
         ...addr,
         id: isEdit && initialData ? initialData.addresses[index]?.id || `temp-addr-${index}` : `temp-addr-${index}`
@@ -181,6 +188,47 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Tipo de Cliente */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <User className="h-5 w-5 mr-2" />
+                  Tipo de Cliente
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="clientType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex space-x-6"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="persona_fisica" id="persona_fisica" />
+                            <label htmlFor="persona_fisica" className="text-sm font-medium cursor-pointer">
+                              Persona Física
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="persona_moral" id="persona_moral" />
+                            <label htmlFor="persona_moral" className="text-sm font-medium cursor-pointer">
+                              Persona Moral (Empresa)
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
             {/* Información General */}
             <Card>
               <CardHeader>
@@ -196,9 +244,15 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nombre de la Empresa *</FormLabel>
+                        <FormLabel>
+                          {clientType === 'persona_fisica' ? 'Nombre Completo *' : 'Nombre de la Empresa *'}
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Ej. Innovación Digital S.A. de C.V." />
+                          <Input {...field} placeholder={
+                            clientType === 'persona_fisica' 
+                              ? "Ej. Juan Pérez García" 
+                              : "Ej. Innovación Digital S.A. de C.V."
+                          } />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -209,9 +263,15 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
                     name="industry"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Industria *</FormLabel>
+                        <FormLabel>
+                          {clientType === 'persona_fisica' ? 'Actividad/Profesión *' : 'Industria *'}
+                        </FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Ej. Tecnología" />
+                          <Input {...field} placeholder={
+                            clientType === 'persona_fisica' 
+                              ? "Ej. Contador, Médico, Comerciante" 
+                              : "Ej. Tecnología"
+                          } />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -219,29 +279,31 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="size"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tamaño de Empresa</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="small">Pequeña</SelectItem>
-                            <SelectItem value="medium">Mediana</SelectItem>
-                            <SelectItem value="large">Grande</SelectItem>
-                            <SelectItem value="enterprise">Empresa</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {clientType === 'persona_moral' && (
+                    <FormField
+                      control={form.control}
+                      name="size"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tamaño de Empresa</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="small">Pequeña</SelectItem>
+                              <SelectItem value="medium">Mediana</SelectItem>
+                              <SelectItem value="large">Grande</SelectItem>
+                              <SelectItem value="enterprise">Empresa</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                   <FormField
                     control={form.control}
                     name="status"
@@ -278,19 +340,21 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="businessName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Razón Social</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Dejar vacío para usar nombre de empresa" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {clientType === 'persona_moral' && (
+                    <FormField
+                      control={form.control}
+                      name="businessName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Razón Social</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Dejar vacío para usar nombre de empresa" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                   <FormField
                     control={form.control}
                     name="rfc"
@@ -298,7 +362,11 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
                       <FormItem>
                         <FormLabel>RFC *</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Ej. INN123456789" />
+                          <Input {...field} placeholder={
+                            clientType === 'persona_fisica' 
+                              ? "Ej. PEGJ800101A23" 
+                              : "Ej. INN123456789"
+                          } />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -313,7 +381,11 @@ export const CreateClientForm = ({ open, onOpenChange, onSubmit, initialData, is
                       <FormItem>
                         <FormLabel>Régimen Fiscal *</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Ej. Régimen General de Ley Personas Morales" />
+                          <Input {...field} placeholder={
+                            clientType === 'persona_fisica' 
+                              ? "Ej. Régimen de Actividades Empresariales con ingresos a través de Plataformas Tecnológicas" 
+                              : "Ej. Régimen General de Ley Personas Morales"
+                          } />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

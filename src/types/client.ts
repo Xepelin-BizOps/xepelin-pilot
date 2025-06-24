@@ -35,6 +35,7 @@ export interface Company {
   industry: string;
   size: 'small' | 'medium' | 'large' | 'enterprise';
   status: 'active' | 'inactive' | 'prospect';
+  clientType: 'persona_fisica' | 'persona_moral';
   createdAt: string;
   lastContact: string;
   addresses: Address[];
