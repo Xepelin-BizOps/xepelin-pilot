@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -239,7 +240,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-sm rounded-lg overflow-hidden">
           <CardHeader className="border-b border-gray-100 bg-white">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">Órdenes de Venta</h3>
@@ -279,11 +280,11 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
               </div>
             )}
 
-            <div className="bg-white">
-              <Table>
+            <div className="bg-white rounded-lg overflow-hidden">
+              <Table className="border-separate border-spacing-0">
                 <TableHeader>
                   <TableRow className="border-b border-gray-100 hover:bg-transparent">
-                    <TableHead className="w-12 py-4">
+                    <TableHead className="w-12 py-4 first:rounded-tl-lg">
                       <input 
                         type="checkbox" 
                         className="rounded border-gray-300"
@@ -302,13 +303,13 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                     <TableHead className="py-4 text-gray-600 font-medium text-sm">Productos</TableHead>
                     <TableHead className="py-4 text-gray-600 font-medium text-sm">Monto</TableHead>
                     <TableHead className="py-4 text-gray-600 font-medium text-sm">Estado</TableHead>
-                    <TableHead className="py-4 text-gray-600 font-medium text-sm">Acciones</TableHead>
+                    <TableHead className="py-4 text-gray-600 font-medium text-sm last:rounded-tr-lg">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {orders.map((order, index) => (
-                    <TableRow key={order.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                      <TableCell className="py-4">
+                    <TableRow key={order.id} className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${index === orders.length - 1 ? 'last:border-b-0' : ''}`}>
+                      <TableCell className={`py-4 ${index === orders.length - 1 ? 'first:rounded-bl-lg' : ''}`}>
                         {order.pending > 0 && (
                           <input 
                             type="checkbox" 
@@ -351,7 +352,7 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                            order.status === 'Pendiente' ? 'En Revisión' : 'Rechazada'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="py-4">
+                      <TableCell className={`py-4 ${index === orders.length - 1 ? 'last:rounded-br-lg' : ''}`}>
                         <div className="flex items-center gap-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
