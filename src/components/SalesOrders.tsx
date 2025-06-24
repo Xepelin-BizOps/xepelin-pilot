@@ -9,7 +9,9 @@ import { PaymentLinkForm } from '@/components/PaymentLinkForm';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { InvoiceDropdown } from '@/components/InvoiceDropdown';
 import { MessageSelectionPanel } from '@/components/MessageSelectionPanel';
-import { MoreHorizontal, FileText, Link, Send, BarChart3 } from 'lucide-react';
+import { OrderDetailsModal } from '@/components/OrderDetailsModal';
+import { EditContactModal } from '@/components/EditContactModal';
+import { MoreHorizontal, FileText, Link, Send, BarChart3, Eye, Edit, Download } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,6 +25,8 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
   const [showPaymentLinkForm, setShowPaymentLinkForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [showMessagePanel, setShowMessagePanel] = useState(false);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [showEditContact, setShowEditContact] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const { toast } = useToast();
 
@@ -166,6 +170,33 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
     const clientOrders = orders.filter(o => o.client === order.client);
     setSelectedOrder({ ...order, clientOrders });
     setShowMessagePanel(true);
+  };
+
+  const handleViewDetails = (order: any) => {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  };
+
+  const handleEditContact = (order: any) => {
+    setSelectedOrder(order);
+    setShowEditContact(true);
+  };
+
+  const handleDownloadPDF = (order: any) => {
+    console.log('Descargando PDF para orden:', order.id);
+    
+    // Simular descarga de PDF
+    const link = document.createElement('a');
+    link.href = '#'; // En una implementación real, aquí iría la URL del PDF
+    link.download = `Orden_${order.id}.pdf`;
+    
+    toast({
+      title: "Descargando PDF",
+      description: `Se está descargando el PDF de la orden ${order.id}`,
+    });
+    
+    // En una implementación real, aquí se haría la descarga real
+    console.log(`PDF de orden ${order.id} descargado`);
   };
 
   const handleIndividualReminder = (order: any) => {
@@ -398,9 +429,27 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="bg-white border border-gray-300 rounded-lg shadow-lg">
-                            <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Ver Detalles</DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Editar Contacto</DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Descargar PDF</DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-50 text-gray-700 cursor-pointer"
+                              onClick={() => handleViewDetails(order)}
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              Ver Detalles
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-50 text-gray-700 cursor-pointer"
+                              onClick={() => handleEditContact(order)}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Editar Contacto
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="hover:bg-gray-50 text-gray-700 cursor-pointer"
+                              onClick={() => handleDownloadPDF(order)}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Descargar PDF
+                            </DropdownMenuItem>
                             {!order.hasCFDI && (
                               <DropdownMenuItem className="hover:bg-gray-50 text-gray-700">Generar CFDI</DropdownMenuItem>
                             )}
@@ -446,6 +495,22 @@ export const SalesOrders: React.FC<SalesOrdersProps> = ({ onClientClick, onShowR
             clientName={selectedOrder.client}
             type="order"
             items={selectedOrder.clientOrders || [selectedOrder]}
+          />
+        )}
+
+        {showOrderDetails && selectedOrder && (
+          <OrderDetailsModal
+            isOpen={showOrderDetails}
+            onClose={() => setShowOrderDetails(false)}
+            order={selectedOrder}
+          />
+        )}
+
+        {showEditContact && selectedOrder && (
+          <EditContactModal
+            isOpen={showEditContact}
+            onClose={() => setShowEditContact(false)}
+            order={selectedOrder}
           />
         )}
       </div>
