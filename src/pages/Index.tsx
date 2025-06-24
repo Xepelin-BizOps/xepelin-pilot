@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { UnifiedDashboard } from '@/components/UnifiedDashboard';
 import { QuoteCreation } from '@/components/QuoteCreation';
@@ -21,12 +22,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/4f34062d-fcee-4ca7-a1c7-cd6f2ac52cb4.png" 
-                alt="Xepelin" 
-                className="h-8"
-              />
-              <span className="ml-3 text-sm text-gray-500">Gestión Comercial</span>
+              {/* Logo and text removed */}
             </div>
           </div>
         </div>
